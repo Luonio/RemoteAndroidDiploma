@@ -81,6 +81,7 @@ namespace WinFormTry_1
                 }
             });
             Controls.Add(yesButton);
+            this.AcceptButton = yesButton;
         }
 
         /*Добавление кнопки "нет" и обработчика нажатия на нее*/

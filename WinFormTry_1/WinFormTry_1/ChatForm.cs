@@ -25,6 +25,7 @@ namespace WinFormTry_1
         public ChatForm()
         {
             InitializeComponent();
+            this.KeyPreview = true;
         }
 
         private void ChatForm_Load(object sender, EventArgs e)
@@ -42,7 +43,9 @@ namespace WinFormTry_1
             enterBox.WordWrap = true;
             enterBox.BorderStyle = BorderStyle.None;
             enterBox.BackColor = Global.textBoxColor;
+            enterBox.AcceptsReturn = false;
             SetTextBoxBounds(ref enterBox);
+            enterBox.KeyDown+= EnterBox_KeyDown;
             chatPanel.Controls.Add(enterBox);
             /*Создаем кнопку для отправки сообщения*/
             enterButton = new Button();
@@ -56,6 +59,22 @@ namespace WinFormTry_1
             #endregion
             this.FormClosing -= ChildFormsTemplate_FormClosing;
             this.FormClosing += ChatForm_FormClosing;
+        }
+
+        private void EnterBox_KeyDown(object sender, KeyEventArgs e)
+        {
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;
+                if (e.Shift)
+                {
+                    enterBox.Text += "\r\n";
+                    enterBox.SelectionStart = enterBox.TextLength;
+                }   
+                else
+                    enterButton.PerformClick();
+            }
         }
 
         private void ChatForm_FormClosing(object sender, FormClosingEventArgs e)

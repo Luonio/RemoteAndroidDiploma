@@ -17,7 +17,6 @@ namespace WinFormTry_1
         }
 
         /*Цвета форм и составных контролов*/
-        //public static Color baseWindowColor = Color.FromArgb(255, 0, 10, 30);
         public static Color baseWindowColor = Color.FromArgb(0, 10, 30);
         public static Color addWindowColor = Color.FromArgb(30, 180, 200, 220);
         public static Color menuItemColor = Color.Transparent;
@@ -28,8 +27,7 @@ namespace WinFormTry_1
         public static Color selectedItemTextColor = baseWindowColor;
         public static Color clickedItemTextColor = Color.FromArgb(0, 0, 20);
         public static Color itemTextColor = Color.FromArgb(230, 255, 255);
-        //public static Color buttonColor = Color.FromArgb(155, 162, 202);
-        public static Color buttonColor = Color.FromArgb(100, 120, 170);
+        public static Color buttonColor = Color.FromArgb(150, 160, 190);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
     }

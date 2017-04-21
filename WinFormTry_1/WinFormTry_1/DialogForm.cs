@@ -45,63 +45,45 @@ namespace WinFormTry_1
         private void SetMessageBounds(Label mess)
         {
             mess.AutoSize = true;
-            mess.Location = new Point(10, Height / 2 - mess.Height/2);
+            mess.Location = new Point(10, Height / 2 - mess.Height / 2);
             mess.ForeColor = Global.itemTextColor;
         }
 
         /*В зависимости от выбранного типа диалога настраиваем кнопки*/
         private void AddButtons()
         {
-            switch(dialogType)
+            switch (dialogType)
             {
                 case Global.DialogTypes.none:
                     break;
                 case Global.DialogTypes.close:
-                    AddYesButton();
-                    AddNoButton();
+                    Controls.Add(NewButton("Да", new Point(10, Height - 30), DialogResult.Yes));
+                    Controls.Add(NewButton("Нет", new Point(Width - 85, Height - 30), DialogResult.No));
+                    break;
+                case Global.DialogTypes.warning:
+                    Controls.Add(NewButton("ОК", new Point(ClientRectangle.Width / 2, Height - 30), DialogResult.OK));
                     break;
             }
         }
 
-        /*Добавление кнопки "да" и обработчика нажатия на нее*/
-        private void AddYesButton()
+        /*Добавление кнопки с указанным текстом, позицией и результатом диалога*/
+        private Button NewButton(string text, Point location, DialogResult res)
         {
-            Button yesButton = new Button();
-            yesButton.Text = "Да";
-            yesButton.Location = new Point(10, Height-yesButton.Height-10);
-            yesButton.FlatStyle = FlatStyle.Flat;
-            yesButton.BackColor = Global.buttonColor;
+            Button bt = new Button();
+            bt.Text = text;
+            bt.Location = location;
+            bt.FlatStyle = FlatStyle.Flat;
+            bt.BackColor = Global.buttonColor;
             /*Обрабатываем нажатие на левую кнопку мыши*/
-            yesButton.MouseClick += new MouseEventHandler((o, mEv) =>
-            {
-                if (mEv.Button == MouseButtons.Left)
-                {
-                    result = DialogResult.Yes;
-                    this.Close();
-                }
-            });
-            Controls.Add(yesButton);
-            this.AcceptButton = yesButton;
-        }
-
-        /*Добавление кнопки "нет" и обработчика нажатия на нее*/
-        private void AddNoButton()
-        {
-            Button noButton = new Button();
-            noButton.Text = "Нет";
-            noButton.Location = new Point(Width - noButton.Width - 10, Height - noButton.Height - 10);
-            noButton.FlatStyle = FlatStyle.Flat;
-            noButton.BackColor = Global.buttonColor;
-            /*Обрабатываем нажатие на левую кнопку мыши*/
-            noButton.MouseClick += new MouseEventHandler((o, mEv) =>
-            {
-                if (mEv.Button == MouseButtons.Left)
-                {
-                    result = DialogResult.No;
-                    this.Close();
-                }
-            });
-            Controls.Add(noButton);
+            bt.MouseClick += new MouseEventHandler((o, mEv) =>
+             {
+                 if (mEv.Button == MouseButtons.Left)
+                 {
+                     result = res;
+                     this.Close();
+                 }
+             });
+            return bt;
         }
 
         /*Модальное отображение диалога*/

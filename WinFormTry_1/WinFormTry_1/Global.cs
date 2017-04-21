@@ -13,7 +13,8 @@ namespace WinFormTry_1
         public enum DialogTypes
         {
             none = 0,
-            close = 1
+            close = 1,
+            warning = 2
         }
 
         /*Цвета форм и составных контролов*/

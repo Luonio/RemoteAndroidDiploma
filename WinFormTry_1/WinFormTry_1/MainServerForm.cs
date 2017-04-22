@@ -90,9 +90,9 @@ namespace WinFormTry_1
             menuItems[0].iconBox.MouseClick += StartStop_MouseClick;
             menuItems[0].itemNameBox.MouseClick += StartStop_MouseClick;
             menuItems.Add(new MenuItemControl("Снимок экрана", Properties.Resources.screen_capture_icon));
-            /*menuItems[1].MouseClick += StartStop_MouseClick;
-            menuItems[1].iconBox.MouseClick += StartStop_MouseClick;
-            menuItems[1].itemNameBox.MouseClick += StartStop_MouseClick;*/
+            menuItems[1].MouseClick += ScreenCapture_MouseClick;
+            menuItems[1].iconBox.MouseClick += ScreenCapture_MouseClick;
+            menuItems[1].itemNameBox.MouseClick += ScreenCapture_MouseClick;
             menuItems.Add(new MenuItemControl("Чат", Properties.Resources.chat_icon));
             menuItems[2].MouseClick += Chat_MouseClick;
             menuItems[2].iconBox.MouseClick += Chat_MouseClick;
@@ -208,6 +208,19 @@ namespace WinFormTry_1
         /*Включение/отключение сеанса*/
         private void StartStop_MouseClick(object sender, EventArgs e)
         {           
+        }
+
+        /*Снимок экрана*/
+        private void ScreenCapture_MouseClick(object sender, EventArgs e)
+        {
+            Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+            Graphics g = Graphics.FromImage(screenshot);
+            g.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
+            if (Cursor.Current != null)
+                using (Icon cursor = Icon.FromHandle(Cursor.Current.Handle))
+                    g.DrawIcon(cursor, new Rectangle(Cursor.Position, cursor.Size));
+            g.Dispose();
+            //screenshot.Save("screenshotTry.jpg");        
         }
 
         private void Chat_MouseClick(object sender, EventArgs e)

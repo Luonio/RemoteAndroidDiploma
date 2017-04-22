@@ -39,7 +39,6 @@ namespace WinFormTry_1
             Controls.Add(pages);
             pages.MakeTransparent();
             #endregion
-
         }
     }
 

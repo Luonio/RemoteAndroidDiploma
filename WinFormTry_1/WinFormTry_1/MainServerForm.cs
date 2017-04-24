@@ -282,10 +282,11 @@ namespace WinFormTry_1
         private void MainServerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             DialogResult dialogResult = DialogForm.Show("Выход", "Завершить работу программы?", Global.DialogTypes.close);
-            //DialogResult dialogResult = MessageBox.Show("Завершить работу программы?", "Завершение работы программы", MessageBoxButtons.YesNoCancel);
             if (dialogResult == DialogResult.Yes)
             {
+                notifyIcon.Dispose();
                 chat.Dispose();
+                properties.Dispose();
                 this.Dispose();
             }
             else
@@ -327,6 +328,10 @@ namespace WinFormTry_1
         {
             notifyMenu.Hide();
         }
+
+        #endregion
+
+        #region Остальные методы
 
         #endregion
 

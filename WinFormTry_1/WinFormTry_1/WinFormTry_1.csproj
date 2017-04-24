@@ -84,6 +84,12 @@
     <Compile Include="FormBorders.Designer.cs">
       <DependentUpon>FormBorders.cs</DependentUpon>
     </Compile>
+    <Compile Include="InitialForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InitialForm.Designer.cs">
+      <DependentUpon>InitialForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainServerForm.cs">
       <SubType>Form</SubType>
     </Compile>

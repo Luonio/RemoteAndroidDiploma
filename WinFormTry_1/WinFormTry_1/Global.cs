@@ -14,14 +14,15 @@ namespace WinFormTry_1
         {
             none = 0,
             close = 1,
-            warning = 2
+            message = 2
         }
 
         /*Цвета форм и составных контролов*/
         public static Color baseWindowColor = Color.FromArgb(0, 10, 30);
         public static Color addWindowColor = Color.FromArgb(30, 180, 200, 220);
         public static Color menuItemColor = Color.Transparent;
-        public static Color formBorderColor = Color.FromArgb(180, 200, 220);
+        //public static Color formBorderColor = Color.FromArgb(180, 200, 220);
+        public static Color formBorderColor = Color.White;
         public static Color selectedItemColor = Color.FromArgb(110, 120, 150);
         public static Color clickedItemColor = Color.FromArgb(150, 170, 190);
         /*Кнопки и текст*/

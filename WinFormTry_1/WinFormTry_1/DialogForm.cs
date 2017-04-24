@@ -60,8 +60,8 @@ namespace WinFormTry_1
                     Controls.Add(NewButton("Да", new Point(10, Height - 30), DialogResult.Yes));
                     Controls.Add(NewButton("Нет", new Point(Width - 85, Height - 30), DialogResult.No));
                     break;
-                case Global.DialogTypes.warning:
-                    Controls.Add(NewButton("ОК", new Point(ClientRectangle.Width / 2, Height - 30), DialogResult.OK));
+                case Global.DialogTypes.message:
+                    Controls.Add(NewButton("ОК", new Point(ClientRectangle.Width - 85, Height - 30), DialogResult.OK));
                     break;
             }
         }

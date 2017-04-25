@@ -16,15 +16,14 @@ namespace WinFormTry_1
         Global.DialogTypes dialogType;
         DialogResult result;
 
-        public Label message;
+        public DBLabel message;
 
         /*Gлучаем заголовок, содержимое и тип вызываемой формы*/
         public DialogForm(String header, String text, Global.DialogTypes dialog)
         {
             InitializeComponent();
             this.Text = header;
-            message = new Label();
-            this.message.Text = text;
+            message = new DBLabel(text);
             this.dialogType = dialog;
             this.Width = 260;
             this.Height = 150;
@@ -43,11 +42,9 @@ namespace WinFormTry_1
         }
 
         /*Настраиваем label*/
-        private void SetMessageBounds(Label mess)
+        private void SetMessageBounds(DBLabel mess)
         {
-            mess.AutoSize = true;
             mess.Location = new Point(10, Height / 2 - mess.Height / 2);
-            mess.ForeColor = Global.itemTextColor;
         }
 
         /*В зависимости от выбранного типа диалога настраиваем кнопки*/

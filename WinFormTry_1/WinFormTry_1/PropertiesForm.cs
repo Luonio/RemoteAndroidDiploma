@@ -27,6 +27,13 @@ namespace WinFormTry_1
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             this.SetStyle(ControlStyles.UserPaint, true);
             this.FormClosing += PropertiesForm_FormClosing;
+            this.Shown += PropertiesForm_Shown;
+        }
+
+        private void PropertiesForm_Shown(object sender, EventArgs e)
+        {
+            if (Global.username != null)
+                this.usernameBox.Text = Global.username;
         }
 
         private void PropertiesForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -53,9 +60,14 @@ namespace WinFormTry_1
             pages.Location = new Point(0, ClientRectangle.Y);
             /*Настраиваем вкладку "персональные"*/
             pages.TabPages.Add(new TabPage("Персональные"));
+            DBLabel userLabel = new DBLabel("Имя пользователя")
+            {
+                Location = new Point(pages.DisplayRectangle.X + 20, pages.DisplayRectangle.Y)
+            };
+            pages.TabPages[0].Controls.Add(userLabel);
             usernameBox = new DBTextBox("Имя пользователя")
             {
-                Location = new Point(pages.DisplayRectangle.X+20,pages.DisplayRectangle.Y)
+                Location = new Point(pages.DisplayRectangle.X+20,pages.DisplayRectangle.Y+5+userLabel.Height)
             };
             pages.TabPages[0].Controls.Add(usernameBox);
             usernameBox.TextChanged += UsernameBox_TextChanged;

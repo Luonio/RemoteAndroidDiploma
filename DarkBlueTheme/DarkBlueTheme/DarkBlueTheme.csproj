@@ -53,6 +53,12 @@
     <Compile Include="DBHeader.Designer.cs">
       <DependentUpon>DBHeader.cs</DependentUpon>
     </Compile>
+    <Compile Include="DBLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DBLabel.Designer.cs">
+      <DependentUpon>DBLabel.cs</DependentUpon>
+    </Compile>
     <Compile Include="DBTextBox.cs">
       <SubType>Component</SubType>
     </Compile>

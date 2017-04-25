@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkBlueTheme;
 
 namespace WinFormTry_1
 {
@@ -38,12 +39,9 @@ namespace WinFormTry_1
             SetPanelBounds(ref chatPanel);
             Controls.Add(chatPanel);
             /*Создаем textBox для ввода и помещаем его на форму*/
-            enterBox = new TextBox();
+            enterBox = new DBTextBox();
             enterBox.Multiline = true;
             enterBox.WordWrap = true;
-            enterBox.BorderStyle = BorderStyle.None;
-            enterBox.BackColor = Global.textBoxColor;
-            enterBox.AcceptsReturn = false;
             SetTextBoxBounds(ref enterBox);
             enterBox.KeyDown+= EnterBox_KeyDown;
             chatPanel.Controls.Add(enterBox);

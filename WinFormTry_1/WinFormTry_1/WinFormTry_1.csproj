@@ -47,6 +47,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DarkBlueTheme, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\DarkBlueTheme\DarkBlueTheme\bin\Debug\DarkBlueTheme.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -77,12 +81,6 @@
     </Compile>
     <Compile Include="DialogForm.Designer.cs">
       <DependentUpon>DialogForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FormBorders.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="FormBorders.Designer.cs">
-      <DependentUpon>FormBorders.cs</DependentUpon>
     </Compile>
     <Compile Include="InitialForm.cs">
       <SubType>Form</SubType>
@@ -129,8 +127,8 @@
     <EmbeddedResource Include="DialogForm.resx">
       <DependentUpon>DialogForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormBorders.resx">
-      <DependentUpon>FormBorders.cs</DependentUpon>
+    <EmbeddedResource Include="InitialForm.resx">
+      <DependentUpon>InitialForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainServerForm.resx">
       <DependentUpon>MainServerForm.cs</DependentUpon>

@@ -27,8 +27,6 @@ namespace WinFormTry_1
         private void PropertiesForm_Load(object sender, EventArgs e)
         {
             #region Добавляем контролы
-            FormBorders header = new FormBorders(this);
-            Controls.Add(header);
             pages = new TransparentTabControl();
             pages.Size = new Size(ClientRectangle.Width + 1, ClientRectangle.Height + 1);
             pages.Location = new Point(0, ClientRectangle.Y);

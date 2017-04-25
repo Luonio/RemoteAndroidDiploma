@@ -46,7 +46,6 @@ E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFo
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.ChatForm.resources
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.ChildFormsTemplate.resources
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.DialogForm.resources
-E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.FormBorders.resources
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.MainServerForm.resources
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.MenuItemControl.resources
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.PropertiesForm.resources
@@ -54,3 +53,6 @@ E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFo
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.csproj.GenerateResource.Cache
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.exe
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.pdb
+E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\bin\Debug\DarkBlueTheme.dll
+E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\bin\Debug\DarkBlueTheme.pdb
+E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.InitialForm.resources

@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WinFormTry_1
+namespace DarkBlueTheme
 {
-    public partial class FormBorders : UserControl
+    public partial class DBHeader : UserControl
     {
+        /*Ссылка на родительскую форму*/
         Form parentForm;
 
         /*Кнопки*/
@@ -73,18 +68,25 @@ namespace WinFormTry_1
         private Point preResizeFormPosition;
         #endregion
 
-        public FormBorders(Form frm)
+
+
+        public DBHeader(Form frm)
         {
+            InitializeComponent();
             InitializeComponent();
             parentForm = frm;
             this.Width = frm.ClientSize.Width;
             this.Height = GetSystemMetrics(Indexes.SM_CYCAPTION) + 7;
             this.Location = new Point(0, 0);
-            this.BackColor = Global.baseWindowColor;
-            this.ForeColor = Global.itemTextColor;
+            this.BackColor = Color.FromArgb(0, 10, 30); ;
+            this.ForeColor = Color.FromArgb(230, 255, 255);
+            this.Load += DBHeader_Load;
+            this.MouseDown += DBHeader_MouseDown;
+            this.MouseMove += DBHeader_MouseMove;
+            this.Paint += DBHeader_Paint;
         }
 
-        private void FormHeader_Load(object sender, EventArgs e)
+        private void DBHeader_Load(object sender, EventArgs e)
         {
             #region Добавление элементов
             /*Отображаемые элементы*/
@@ -101,7 +103,6 @@ namespace WinFormTry_1
             ScalingControls.bottom = new Control();
             ScalingControls.bottomLeft = new Control();
             ScalingControls.left = new Control();
-
             #endregion
             this.DoubleBuffered = true;
             parentForm.MaximumSize = Screen.PrimaryScreen.WorkingArea.Size;
@@ -111,7 +112,7 @@ namespace WinFormTry_1
             /*Добавляем onPaint для родительской формы*/
             parentForm.Paint += parentForm_OnPaint;
             this.Show();
-        }       
+        }
 
         /*Добавление на контрол кнопок*/
         private void AddButton(ButtonTypes type)
@@ -165,8 +166,8 @@ namespace WinFormTry_1
             headerBox.Text = ParentForm.Text;
             headerBox.Location = new Point(Convert.ToInt32(this.Height), this.Height / 2 - headerBox.Height / 4);
             headerBox.BackColor = Color.Transparent;
-            headerBox.MouseDown += FormBorder_MouseDown;
-            headerBox.MouseMove += FormBorder_MouseMove;
+            headerBox.MouseDown += DBHeader_MouseDown;
+            headerBox.MouseMove += DBHeader_MouseMove;
             this.Controls.Add(headerBox);
         }
 
@@ -189,12 +190,12 @@ namespace WinFormTry_1
         {
             /*Добавляем рамку*/
             Graphics clientRect = parentForm.CreateGraphics();
-            Pen borderPen = new Pen(Global.formBorderColor);
+            Pen borderPen = new Pen(Color.FromArgb(180, 200, 220));
             clientRect.DrawRectangle(borderPen, 0, 0, parentForm.Width - 1, parentForm.Height - 1);
             clientRect.Dispose();
         }
 
-        private void FormBorder_Paint(object sender, PaintEventArgs e)
+        private void DBHeader_Paint(object sender, PaintEventArgs e)
         {
             Graphics clientRect = this.CreateGraphics();
             /*Рисуем иконку*/
@@ -234,7 +235,7 @@ namespace WinFormTry_1
 
         private void hideButton_MouseEnter(object sender, EventArgs e)
         {
-            hideButton.BackColor = Global.selectedItemColor;
+            hideButton.BackColor = Color.FromArgb(110, 120, 150);
         }
 
         private void resizeButton_MouseLeave(object sender, EventArgs e)
@@ -244,7 +245,7 @@ namespace WinFormTry_1
 
         private void resizeButton_MouseEnter(object sender, EventArgs e)
         {
-            resizeButton.BackColor = Global.selectedItemColor;
+            resizeButton.BackColor = Color.FromArgb(110, 120, 150);
         }
 
         #endregion
@@ -292,7 +293,7 @@ namespace WinFormTry_1
         #region Перетаскивание родительской формы
 
         /*Движение мыши в области заголовка*/
-        private void FormBorder_MouseMove(object sender, MouseEventArgs e)
+        private void DBHeader_MouseMove(object sender, MouseEventArgs e)
         {
             /*Если кнопка нажата - перетаскиваем форму*/
             if (e.Button == MouseButtons.Left)
@@ -306,12 +307,11 @@ namespace WinFormTry_1
         }
 
         /*Сохраняем место нажатия кнопки и положение формы для перетаскивания*/
-        private void FormBorder_MouseDown(object sender, MouseEventArgs e)
+        private void DBHeader_MouseDown(object sender, MouseEventArgs e)
         {
             prevMousePosition = MousePosition;
             prevFormPosition = parentForm.Location;
         }
         #endregion       
-       
     }
 }

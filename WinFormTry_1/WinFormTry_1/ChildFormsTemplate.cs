@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkBlueTheme;
 
 namespace WinFormTry_1
 {
@@ -15,7 +16,7 @@ namespace WinFormTry_1
     public partial class ChildFormsTemplate : Form
     {
         /*Заголовок*/
-        protected FormBorders header;
+        protected DBHeader header;
 
         /*Отображается ли сейчас форма*/
         public bool shown = false;
@@ -45,7 +46,7 @@ namespace WinFormTry_1
         private void ChildFormsTemplate_Load(object sender, EventArgs e)
         {
             /*Заголовок окна*/
-            header = new FormBorders(this);
+            header = new DBHeader(this);
             Controls.Add(header);
             DoubleBuffered = true;
             this.VisibleChanged += ChildFormsTemplate_VisibleChanged;

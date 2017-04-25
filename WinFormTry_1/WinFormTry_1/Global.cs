@@ -32,5 +32,10 @@ namespace WinFormTry_1
         public static Color buttonColor = Color.FromArgb(150, 160, 190);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
+
+        public static String remoteIP;
+        public static String username;
+        public static String securityCode;
+
     }
 }

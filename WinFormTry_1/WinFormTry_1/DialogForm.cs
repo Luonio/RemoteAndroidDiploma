@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using DarkBlueTheme;
 
 namespace WinFormTry_1
 {
@@ -69,7 +70,7 @@ namespace WinFormTry_1
         /*Добавление кнопки с указанным текстом, позицией и результатом диалога*/
         private Button NewButton(string text, Point location, DialogResult res)
         {
-            Button bt = new Button();
+            DBButton bt = new DBButton();
             bt.Text = text;
             bt.Location = location;
             bt.FlatStyle = FlatStyle.Flat;

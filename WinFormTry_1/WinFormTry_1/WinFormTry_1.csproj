@@ -82,12 +82,6 @@
     <Compile Include="DialogForm.Designer.cs">
       <DependentUpon>DialogForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InitialForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="InitialForm.Designer.cs">
-      <DependentUpon>InitialForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="MainServerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -126,9 +120,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DialogForm.resx">
       <DependentUpon>DialogForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="InitialForm.resx">
-      <DependentUpon>InitialForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainServerForm.resx">
       <DependentUpon>MainServerForm.cs</DependentUpon>

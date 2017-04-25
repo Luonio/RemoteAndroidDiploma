@@ -7,12 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DarkBlueTheme;
 
 namespace WinFormTry_1
 {
     public partial class PropertiesForm : ChildFormsTemplate
     {
         TransparentTabControl pages;
+        DBTextBox usernameBox;
+
+        bool changesDone = false;
 
         public PropertiesForm()
         {
@@ -22,6 +26,23 @@ namespace WinFormTry_1
             this.BackColor = Global.baseWindowColor;
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             this.SetStyle(ControlStyles.UserPaint, true);
+            this.FormClosing += PropertiesForm_FormClosing;
+        }
+
+        private void PropertiesForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if(changesDone)
+            {
+                DialogResult res = DialogForm.Show("Настройки", "Сохранить изменения?", Global.DialogTypes.close);
+                if (res == DialogResult.Yes)
+                    ApplyChanges();                
+            }
+        }
+
+        /*Применение изменений*/
+        private void ApplyChanges()
+        {
+            Global.username = usernameBox.Text;
         }
 
         private void PropertiesForm_Load(object sender, EventArgs e)
@@ -32,11 +53,23 @@ namespace WinFormTry_1
             pages.Location = new Point(0, ClientRectangle.Y);
             /*Настраиваем вкладку "персональные"*/
             pages.TabPages.Add(new TabPage("Персональные"));
+            usernameBox = new DBTextBox("Имя пользователя")
+            {
+                Location = new Point(pages.DisplayRectangle.X+20,pages.DisplayRectangle.Y)
+            };
+            pages.TabPages[0].Controls.Add(usernameBox);
+            usernameBox.TextChanged += UsernameBox_TextChanged;
             pages.TabPages.Add(new TabPage("Соединение"));
             pages.TabPages.Add(new TabPage("Общие"));
             Controls.Add(pages);
             pages.MakeTransparent();
             #endregion
+        }
+
+        /*Происходит при изменении имени пользователя*/
+        private void UsernameBox_TextChanged(object sender, EventArgs e)
+        {
+            changesDone = true;
         }
     }
 

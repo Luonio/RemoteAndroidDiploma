@@ -55,4 +55,3 @@ E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFo
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.pdb
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\bin\Debug\DarkBlueTheme.dll
 E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\bin\Debug\DarkBlueTheme.pdb
-E:\Projects\Diploma\RemoteAndroidDiploma\RemoteAndroidDiploma\WinFormTry_1\WinFormTry_1\obj\Debug\WinFormTry_1.InitialForm.resources

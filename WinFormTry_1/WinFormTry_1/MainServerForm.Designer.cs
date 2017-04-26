@@ -77,8 +77,6 @@
             this.Name = "MainServerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Удаленный доступ";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainServerForm_FormClosing);
-            this.Load += new System.EventHandler(this.SettingsForm_Load);
             this.notifyMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 

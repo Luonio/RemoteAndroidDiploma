@@ -38,6 +38,10 @@ namespace WinFormTry_1
 
         /*Список пунктов меню*/
         private List<MenuItemControl> menuItems;
+
+        /*Переменная, отвечающая за соединение*/
+        RemoteConnection connection;
+
         #endregion
 
         #region Окна
@@ -71,10 +75,14 @@ namespace WinFormTry_1
             /*Устанавливаем цвет окна*/
             this.BackColor = Global.baseWindowColor;
             this.TopMost = true;
+
+            /*Добавляем события формы*/
+            this.FormClosing += MainServerForm_FormClosing;
+            this.Load += MainServerForm_Load;
         }
 
         /*Загрузка формы. Инициализируем список объектов меню и выводим их*/
-        private void SettingsForm_Load(object sender, EventArgs e)
+        private void MainServerForm_Load(object sender, EventArgs e)
         {
             int minVal = Convert.ToInt32(MinimumSize.Width * 0.8);
             int maxVal = Convert.ToInt32(MaximumSize.Width * 0.8);
@@ -139,6 +147,12 @@ namespace WinFormTry_1
             itemLocationY -= (minItemSize.Height + itemLocationX * 3);
             menuItems[indexFromEnd].Location = new Point(itemLocationX, itemLocationY);
             #endregion
+
+            /*Генерируем случайный пароль*/
+            Global.securityCode = GetRandomCode(8);
+
+            /*Инициализируем сетевую переменную*/
+            connection = new RemoteConnection();
 
             /*Создание иконки рядом с панелью задач*/
             notifyIcon.Icon = Properties.Resources.notify_icon;
@@ -332,6 +346,21 @@ namespace WinFormTry_1
         #endregion
 
         #region Остальные методы
+
+        /*Генерация рандомного пароля*/
+        public String GetRandomCode(int size)
+        {
+            string password = "";
+            Random rand = new Random();
+            char c;
+            while(password.Length<size)
+            {
+                c = (char)rand.Next(33, 125);
+                if (Char.IsLetterOrDigit(c))
+                    password += c;
+            }
+            return password;
+        }
 
         #endregion
 

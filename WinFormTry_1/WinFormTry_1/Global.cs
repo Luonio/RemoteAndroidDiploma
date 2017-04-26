@@ -17,6 +17,12 @@ namespace WinFormTry_1
             message = 2
         }
 
+        public struct Commands
+        {
+            public static string INIT = "INIT";
+            public static string SCREEN = "SCREEN";
+        }
+
         /*Цвета форм и составных контролов*/
         public static Color baseWindowColor = Color.FromArgb(0, 10, 30);
         public static Color addWindowColor = Color.FromArgb(30, 180, 200, 220);
@@ -32,9 +38,14 @@ namespace WinFormTry_1
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
 
-        public static String remoteIP;
+        public static String hostIP = "127.0.0.1";
+        public static int port = 745;
         public static String username;
         public static String securityCode;
+
+        /*Список сохраненных девайсов
+          с устройств из этого списка можно подключаться без пароля*/
+        public static List<RemoteDevice> savedDevices;
 
     }
 }

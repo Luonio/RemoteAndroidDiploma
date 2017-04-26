@@ -27,7 +27,8 @@
             android:layout_below="@+id/usernameText"
             android:layout_marginTop="18dp"
             android:ems="10"
-            android:inputType="text" />
+            android:inputType="number|numberDecimal"
+            android:digits="0123456789." />
 
         <EditText
             android:id="@+id/passwordText"
@@ -49,6 +50,7 @@
             android:layout_alignRight="@+id/passwordText"
             android:layout_alignStart="@+id/passwordText"
             android:layout_below="@+id/passwordText"
+            android:onClick="connectButton_onClick"
             android:layout_marginTop="16dp"
             android:text="Подключиться" />
     </RelativeLayout>

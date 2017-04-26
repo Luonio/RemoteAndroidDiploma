@@ -22,7 +22,7 @@ namespace WinFormTry_1
         /*Android-клиент, подключающийся к компьютеру*/
         RemoteDevice remoteClient;
 
-        private Socket handler;
+        private Socket remoteListener;
 
         /*Имя пользователя*/
         public String username
@@ -59,29 +59,32 @@ namespace WinFormTry_1
             this.port = Global.port;
             this.device = Environment.MachineName;
             this.securityCode = Global.securityCode;
+
+            /*Запуск асинхронного прослушивания сокета*/
+            Task listeningTask = new Task(Listen);
+            listeningTask.Start();
         }
 
-        /*Запуск асинхронного прослушивания подключений*/
+        /*Поток для приема подключений*/
         public void Listen()
         {
-            Task listen = Task.Factory.StartNew(() =>
+            try
             {
-                Socket sListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                try
+                /*Привязываем сокет к серверному адресу*/
+                remoteListener.Bind(host);
+                /*Считываем начальные данные об удаленном устройстве*/
+                while (true)
                 {
-                    sListener.Bind(host);
-                    sListener.Listen(1);
-                    /*Ожидаем входящего подключения*/
-                    handler = sListener.Accept();
-                    /*Мы дождались клиента, пытающегося с нами соединиться
-                      Отправляем ему команду-запрос данных*/
-                    handler.Send(Encoding.ASCII.GetBytes(Global.Commands.INIT));                    
+
                 }
-                catch (Exception ex)
+                while(true)
                 {
-                    DialogForm.Show("Ошибка", ex.Message, Global.DialogTypes.message);
+                    /*Получаем сообщение*/
+                    StringBuilder builder = new StringBuilder();
+                    int bytes = 0; // количество полученных байтов
+                    byte[] data = new byte[256]; // буфер для получаемых данных
                 }
-            });
+            }
         }
     }
 

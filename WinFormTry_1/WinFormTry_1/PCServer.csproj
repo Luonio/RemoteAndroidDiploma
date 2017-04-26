@@ -78,6 +78,7 @@
     <Compile Include="ChildFormsTemplate.Designer.cs">
       <DependentUpon>ChildFormsTemplate.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataSet.cs" />
     <Compile Include="DialogForm.cs">
       <SubType>Form</SubType>
     </Compile>

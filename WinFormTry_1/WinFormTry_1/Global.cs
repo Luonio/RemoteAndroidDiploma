@@ -17,10 +17,15 @@ namespace WinFormTry_1
             message = 2
         }
 
-        public struct Commands
+        public enum ConnectionCommands
         {
-            public static string INIT = "INIT";
-            public static string SCREEN = "SCREEN";
+            NONE = 0x00,
+            INIT = 0x01,
+            PASSWORD = 0x02,
+            CONNECT = 0x03,
+            DECLINE = 0x04,
+            EXIT = 0x05,
+            ERROR = 0x06
         }
 
         /*Цвета форм и составных контролов*/

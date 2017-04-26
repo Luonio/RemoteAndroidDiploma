@@ -75,18 +75,32 @@ namespace WinFormTry_1
                 /*Считываем начальные данные об удаленном устройстве*/
                 while (true)
                 {
-
-                }
-                while(true)
-                {
                     /*Получаем сообщение*/
                     StringBuilder builder = new StringBuilder();
                     int bytes = 0; // количество полученных байтов
                     byte[] data = new byte[256]; // буфер для получаемых данных
+
+                    /*Адрес, с которого приходят данные*/
+                    EndPoint remoteIp = new IPEndPoint(IPAddress.Any, port);
+                    /*Получаем данные и преобразуем их в DataSet*/
+                    bytes = remoteListener.ReceiveFrom(data, ref remoteIp);
+                    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                    DataSet initStructure = new DataSet(builder.ToString());
+                    /*Проверяем операцию
+                      Как только отловили команду INIT, инициализируем удаленного пользователя*/
+                    if (initStructure.command==Global.ConnectionCommands.INIT)
+                    {
+                        /*Получаем ip, с которого пришел сигнал*/
+                        IPEndPoint finalIp = remoteIp as IPEndPoint;
+                        remoteClient = new RemoteDevice(initStructure.variables[1], initStructure.variables[2], finalIp.Address);
+                        break;
+                    }
                 }
             }
+            catch { }
         }
     }
+
 
 
     /*Подключаемое устройство*/
@@ -100,15 +114,24 @@ namespace WinFormTry_1
         public String username;
         /*Название удаленного устройства*/
         public String device;
-
+        /*IP удаленного устройства*/
+        IPAddress ip;
 
         public bool noPasswordAllowed => CheckDevice(this);
+
+        /*Конструктор*/
+        public RemoteDevice(string username, string deviceName, IPAddress ip )
+        {
+            this.username = username;
+            this.device = deviceName;
+            this.ip = ip;
+        }
 
         /*Возвращает true, если подключаемое устройство - сохраненное*/
         private static bool CheckDevice(RemoteDevice device)
         {
             /*Если ссылаемый объект проинициализирован*/
-            if (device.username != null & device.device != null & device.id != null)
+            if (device.username != null & device.device != null)
                 foreach (RemoteDevice d in Global.savedDevices)
                 {
                     if (device.Equals(d))
@@ -119,7 +142,7 @@ namespace WinFormTry_1
 
         public bool Equals(RemoteDevice dev)
         {
-            if (id == dev.id & username == dev.username & device == dev.device)
+            if (username == dev.username & device == dev.device)
                 return true;
             return false;
         }

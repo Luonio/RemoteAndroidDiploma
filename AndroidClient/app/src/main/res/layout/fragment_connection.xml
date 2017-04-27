@@ -4,54 +4,99 @@
     android:layout_height="match_parent"
     tools:context="plotnikova.androidclient.ConnectionFragment">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/usernameView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/view_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="150dp"
+            android:text="Ваше имя" />
 
         <EditText
             android:id="@+id/usernameText"
-            android:layout_width="wrap_content"
+            style="@style/DarkBlue.EditText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="78dp"
+            android:layout_marginLeft="@dimen/view_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="5dp"
             android:ems="10"
             android:inputType="textPersonName" />
 
+        <TextView
+            android:id="@+id/ipView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/view_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="20dp"
+            android:text="IP-адрес удаленного компьютера" />
+
         <EditText
             android:id="@+id/ipText"
+            style="@style/DarkBlue.EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/view_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="5dp"
+            android:digits="0123456789."
+            android:ems="10"
+            android:inputType="number|numberDecimal" />
+
+        <Button
+            android:id="@+id/connectButton"
+            style="@style/DarkBlue.View.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="@dimen/view_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:onClick="connectButton_onClick"
+            android:text="Подключиться" />
+
+    </LinearLayout>
+
+
+    <!--
+
+
+
+
+
+        <Button
+            android:id="@+id/connectButton"
+            style="@style/DarkBlue.View.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="59dp"
+            android:onClick="connectButton_onClick"
+            android:text="Подключиться" />
+
+        <TextView
+            android:id="@+id/usernameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/connectButton"
+            android:layout_alignRight="@+id/connectButton"
+            android:layout_below="@+id/ipText"
+            android:layout_marginTop="57dp"
+            android:text="Ваше имя" />
+
+        <TextView
+            android:id="@+id/ipView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/usernameText"
             android:layout_alignStart="@+id/usernameText"
             android:layout_below="@+id/usernameText"
-            android:layout_marginTop="18dp"
-            android:ems="10"
-            android:inputType="number|numberDecimal"
-            android:digits="0123456789." />
-
-        <EditText
-            android:id="@+id/passwordText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/ipText"
-            android:layout_alignStart="@+id/ipText"
-            android:layout_below="@+id/ipText"
-            android:layout_marginTop="13dp"
-            android:ems="10"
-            android:inputType="textPassword" />
-
-        <Button
-            android:id="@+id/connectButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/passwordText"
-            android:layout_alignLeft="@+id/passwordText"
-            android:layout_alignRight="@+id/passwordText"
-            android:layout_alignStart="@+id/passwordText"
-            android:layout_below="@+id/passwordText"
-            android:onClick="connectButton_onClick"
-            android:layout_marginTop="16dp"
-            android:text="Подключиться" />
-    </RelativeLayout>
+            android:layout_marginTop="21dp"
+            android:text="IP-адрес удаленного компьютера" />
+    </RelativeLayout>-->
 </FrameLayout>

@@ -77,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
             InetAddress adress = InetAddress.getByName(ip);
             /*Получаем строки имени пользователя и кода безопасности*/
             String username = connectionFragment.nameView.getText().toString();
-            String pass = connectionFragment.passwordView.getText().toString();
             if(username=="")
                 connection = new RemoteConnection(this,adress);
             else

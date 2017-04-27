@@ -18,7 +18,9 @@
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
+        style="@style/DarkBlue.View.Navigation"
         android:layout_width="match_parent"
+        app:itemTextColor="@color/dbViewTextColor"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="?android:attr/windowBackground"

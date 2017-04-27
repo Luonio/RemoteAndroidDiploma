@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <!--Цвета Activity-->
+    <color name="dbBackgroundPrimary">#0A1428</color>
+    <color name="dbWindowBackground">#B4C8DC</color>
+    <color name="dbTextColorPrimary">#B1B1BE</color>
+    <color name="dbColorPrimary">#001A3F</color>
+    <color name="dbStatusBarColor">@android:color/black</color>
+    <color name="dbColorAccent">#EFEFFF</color>
+    <!--Цвета View-->
+    <color name="dbViewBackground">#303040</color>
+    <color name="dbViewTextColor">#A1A1A1</color>
+    
 </resources>

@@ -20,7 +20,6 @@ public class ConnectionFragment extends Fragment {
     Button connectButton;
     EditText nameView;
     EditText ipView;
-    EditText passwordView;
 
     @Override
     public void onCreate (Bundle savedInstanceState){
@@ -38,7 +37,6 @@ public class ConnectionFragment extends Fragment {
         connectButton = (Button) rootView.findViewById(R.id.connectButton);
         nameView = (EditText) rootView.findViewById(R.id.usernameText);
         ipView = (EditText) rootView.findViewById(R.id.ipText);
-        passwordView = (EditText) rootView.findViewById(R.id.passwordText);
         return rootView;
     }
 }

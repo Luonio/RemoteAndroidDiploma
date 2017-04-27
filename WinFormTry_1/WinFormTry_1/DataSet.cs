@@ -80,5 +80,7 @@ namespace WinFormTry_1
                     return ConnectionCommands.NONE;
             }
         }
+
+        
     }
 }

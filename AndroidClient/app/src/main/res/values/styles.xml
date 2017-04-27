@@ -1,11 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="DarkBlue" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:colorBackground">@color/dbBackgroundPrimary</item>
+        <item name="android:textColor">@color/dbTextColorPrimary</item>
+        <item name="colorPrimary">@color/dbColorPrimary</item>
+        <item name="android:statusBarColor">@color/dbStatusBarColor</item>
+        <item name="android:textSize">@dimen/baseTextSize</item>
+        <item name="colorAccent">@color/dbColorAccent</item>
     </style>
 
+    <style name="DarkBlue.View">
+        <item name="android:background">@color/dbViewBackground</item>
+        <item name="android:textColor">@color/dbViewTextColor</item>
+        <item name="android:textSize">@dimen/viewTextSize</item>
+    </style>
+
+    <style name="DarkBlue.View.Button">
+    </style>
+
+    <style name="DarkBlue.EditText" parent="Base.V12.Widget.AppCompat.EditText">
+        <item name="android:backgroundTint">@color/dbViewTextColor</item>
+        <item name="android:textColor">@color/dbViewTextColor</item>
+    </style>
+
+    <style name="DarkBlue.View.Navigation">
+        <item name="android:backgroundTint">@color/dbViewBackground</item>
+    </style>
 </resources>

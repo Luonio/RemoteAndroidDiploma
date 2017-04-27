@@ -60,6 +60,8 @@ namespace WinFormTry_1
             this.device = Environment.MachineName;
             this.securityCode = Global.securityCode;
 
+            /*Инициализируем сокет*/
+            remoteListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             /*Запуск асинхронного прослушивания сокета*/
             Task listeningTask = new Task(Listen);
             listeningTask.Start();
@@ -88,16 +90,23 @@ namespace WinFormTry_1
                     DataSet initStructure = new DataSet(builder.ToString());
                     /*Проверяем операцию
                       Как только отловили команду INIT, инициализируем удаленного пользователя*/
-                    if (initStructure.command==Global.ConnectionCommands.INIT)
+                    if (initStructure.command==DataSet.ConnectionCommands.INIT)
                     {
                         /*Получаем ip, с которого пришел сигнал*/
                         IPEndPoint finalIp = remoteIp as IPEndPoint;
-                        remoteClient = new RemoteDevice(initStructure.variables[1], initStructure.variables[2], finalIp.Address);
+                        remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], finalIp.Address);
                         break;
                     }
                 }
             }
             catch { }
+        }
+
+        /*Отправка данных*/
+        public void Send(DataSet package)
+        {
+            byte[] data = Encoding.Unicode.GetBytes(package.package);
+            remoteListener.SendTo(data, host);
         }
     }
 

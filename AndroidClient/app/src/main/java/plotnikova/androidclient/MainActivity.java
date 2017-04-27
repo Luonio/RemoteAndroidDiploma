@@ -1,6 +1,7 @@
 package plotnikova.androidclient;
 
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -60,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void connectButton_onClick(View v)
     {
+        /*Разрешаем работу с сетью с основного потока*/
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
+        StrictMode.setThreadPolicy(policy);
         String ip = connectionFragment.ipView.getText().toString();
         if(ip.equals("")) {
             Toast emptyIpError = Toast.makeText(getApplicationContext(),
@@ -69,31 +73,23 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         /*Если введенный ip корректен*/
-        if(checkIP(ip)) {
+        try {
+            InetAddress adress = InetAddress.getByName(ip);
             /*Получаем строки имени пользователя и кода безопасности*/
             String username = connectionFragment.nameView.getText().toString();
             String pass = connectionFragment.passwordView.getText().toString();
+            if(username=="")
+                connection = new RemoteConnection(this,adress);
+            else
+                connection = new RemoteConnection(this,username,adress);
+            connection.run();
         }
         /*Если был введен некорректный ip-адрес*/
-        else {
+        catch (UnknownHostException ex) {
             Toast wrongIpError = Toast.makeText(getApplicationContext(),
                     "Некорректный IP-адрес!", Toast.LENGTH_SHORT);
             wrongIpError.setGravity(Gravity.BOTTOM, 0, navigation.getHeight());
             wrongIpError.show();
         }
     }
-
-    /*Метод возвращает true, если введенная строка является ip-адресом
-    * и false в противном случае*/
-    Boolean checkIP(String adress)
-    {
-        try {
-            InetAddress tmpAdress = InetAddress.getByName(adress);
-        }
-        catch (UnknownHostException ex) {
-            return false;
-        }
-        return true;
-    }
-
 }

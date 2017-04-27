@@ -8,8 +8,19 @@ namespace WinFormTry_1
 {
     public class DataSet
     {
+        public enum ConnectionCommands
+        {
+            NONE = 0x00,
+            INIT = 0x01,
+            PASSWORD = 0x02,
+            CONNECT = 0x03,
+            DECLINE = 0x04,
+            EXIT = 0x05,
+            ERROR = 0x06
+        }
+
         /*Команда*/
-        public Global.ConnectionCommands command;
+        public ConnectionCommands command;
 
         /*Массив данных*/
         public String[] variables;
@@ -19,40 +30,54 @@ namespace WinFormTry_1
 
         public DataSet()
         {
-            this.command = Global.ConnectionCommands.NONE;
+            this.command = ConnectionCommands.NONE;
             this.variables = null;
         }
 
-        /*Получаем пакет вида КОМАНДА:данные,данные,данные...*/
+        /*Получаем пакет вида КОМАНДА\данные,данные,данные...*/
         public DataSet(String package)
         {
-            variables = package.Split(new Char[] { '\'', ',' });
-            this.command = ToCommand(variables[0]);
+            FromString(package);
+        }
+
+        /*Получаем пакет в виде массива байтов*/
+        public DataSet(Byte[] package)
+        {
+            FromString(package.ToString());
+        }
+
+        /*Делим строку на команду и массив данных*/
+        private void FromString(String package)
+        {
+            String[] tmpArr = package.Split('\\');
+            this.command = ToCommand(tmpArr[0]);
+            if (tmpArr[1] != null)
+                variables = tmpArr[1].Split(',');
             this.package = package;
         }
 
         /*Преобразует строку в команду*/
-        private Global.ConnectionCommands ToCommand(String str)
+        private ConnectionCommands ToCommand(String str)
         {
             switch(str)
             {
-                /*INIT:remoteUsername,remoteDevice
-                 var1 = username
-                 var2 = device*/
+                /*0x01:remoteUsername,remoteDevice
+                 var0 = username
+                 var1 = device*/
                 case "0x01":
-                    return Global.ConnectionCommands.INIT;
+                    return ConnectionCommands.INIT;
                 case "0x02":
-                    return Global.ConnectionCommands.PASSWORD;
+                    return ConnectionCommands.PASSWORD;
                 case "0x03":
-                    return Global.ConnectionCommands.CONNECT;
+                    return ConnectionCommands.CONNECT;
                 case "0x04":
-                    return Global.ConnectionCommands.DECLINE;
+                    return ConnectionCommands.DECLINE;
                 case "0x05":
-                    return Global.ConnectionCommands.EXIT;
+                    return ConnectionCommands.EXIT;
                 case "0x06":
-                    return Global.ConnectionCommands.ERROR;
+                    return ConnectionCommands.ERROR;
                 default:
-                    return Global.ConnectionCommands.NONE;
+                    return ConnectionCommands.NONE;
             }
         }
     }

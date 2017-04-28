@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 connection = new RemoteConnection(this,adress);
             else
                 connection = new RemoteConnection(this,username,adress);
-            connection.run();
+            connection.start();
         }
         /*Если был введен некорректный ip-адрес*/
         catch (UnknownHostException ex) {

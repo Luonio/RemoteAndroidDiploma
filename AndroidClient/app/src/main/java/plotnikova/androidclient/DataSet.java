@@ -38,7 +38,7 @@ public class DataSet {
         fromString(pack);
     }
 
-    public DataSet (Byte[] pack){
+    public DataSet (byte[] pack){
         fromString(pack.toString());
     }
 
@@ -53,13 +53,12 @@ public class DataSet {
     {
         this.pack = pack;
         variables = new ArrayList<>();
-        char slash = '\\';
         /*Разделяем строку на команду и данные*/
-        String[] tmpArr = pack.split(String.valueOf(slash));
+        String[] tmpArr = pack.split("\\\\",2);
         /*Добавляем команду*/
         command = getCommand(tmpArr[0]);
         /*Получаем список переменных*/
-        if(tmpArr[1]!=null)
+        if(tmpArr[1]!="")
             for(String val : tmpArr[1].split(","))
                 variables.add(val);
     }
@@ -120,7 +119,11 @@ public class DataSet {
     /*Добавление элемента данных к пакету*/
     public void add(Object value)
     {
+        if(variables.isEmpty())
+            this.pack+=value.toString();
+        else
+            this.pack+=","+value.toString();
         this.variables.add(value.toString());
-        this.pack+=","+value.toString();
+
     }
 }

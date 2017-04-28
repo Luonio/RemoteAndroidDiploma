@@ -13,6 +13,10 @@ namespace WinFormTry_1
 {
     public class RemoteConnection
     {
+        /*Список сохраненных девайсов
+          с устройств из этого списка можно подключаться без пароля*/
+        public static List<RemoteDevice> savedDevices = new List<RemoteDevice>();
+
         /*Имя компьютера*/
         public String device;
         /*ip-адрес компьютера*/
@@ -54,11 +58,25 @@ namespace WinFormTry_1
             set { }
         }
 
+        public IPEndPoint client;
+
+        /*Внешний ip роутера*/
+        public IPAddress externalIP
+        {
+            get
+            {
+                string ip = new WebClient().DownloadString("http://icanhazip.com");
+                if (ip.Contains('\n'))
+                    return IPAddress.Parse(ip.Remove(ip.Length - 1, 1));
+                return IPAddress.Parse(ip);
+            }
+        }
+
         /*Конструктор класса*/
         public RemoteConnection()
         {
             this.hostAdress = IPAddress.Parse(Global.hostIP);
-            this.port = Global.port;
+            this.port = Global.receivePort;
             this.device = Environment.MachineName;
             this.securityCode = Global.securityCode;
 
@@ -76,45 +94,89 @@ namespace WinFormTry_1
             {
                 UPnPNAT nat = new UPnPNAT();
                 IStaticPortMappingCollection mappings = nat.StaticPortMappingCollection;
-                //mappings.Add(Global.port, "UDP", Global.port, "192.168.0.105", true, "Local Web Server");
-                mappings.Add(Global.port, "UDP", Global.port, "46.72.20.122", true, "Local Web Server"); 
+                //mappings.Add(Global.port, "UDP", Global.port, "192.168.0.105", true, "Local Web Server");                
+                mappings.Add(port, "UDP", port, "46.72.20.122", true, "Local Web Server"); 
                 /*Привязываем сокет к серверному адресу*/
                 remoteListener.Bind(host);
-                /*Считываем начальные данные об удаленном устройстве*/
-                while (true)
-                {
-                    /*Получаем сообщение*/
-                    StringBuilder builder = new StringBuilder();
-                    int bytes = 0; // количество полученных байтов
-                    byte[] data = new byte[256]; // буфер для получаемых данных
-
-                    /*Адрес, с которого приходят данные*/
-                    EndPoint remoteIp = new IPEndPoint(IPAddress.Any, port);
-                    /*Получаем данные и преобразуем их в DataSet*/
-                    bytes = remoteListener.ReceiveFrom(data, ref remoteIp);
-                    builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
-                    DataSet initStructure = new DataSet(builder.ToString());
-                    /*Проверяем операцию
-                      Как только отловили команду INIT, инициализируем удаленного пользователя*/
-                    if (initStructure.command==DataSet.ConnectionCommands.INIT)
-                    {
-                        /*Получаем ip, с которого пришел сигнал*/
-                        IPEndPoint finalIp = remoteIp as IPEndPoint;
-                        remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], finalIp.Address);
-                        break;
-                    }
-                }
+                /*Крутимся в цикле, пока не завершим инициализацию удаленного устройства*/
+                while (!Connect()) ;
+                
             }
             catch (Exception ex)
             {
                 DialogForm.Show("Ошибка", ex.ToString(), Global.DialogTypes.message); }
         }
 
+        /*Выполняет все этапы подключения клиента к серверу*/
+        private bool Connect ()
+        {
+            #region INIT
+            /*Считываем начальные данные об удаленном устройстве*/
+            EndPoint remoteIp = new IPEndPoint(IPAddress.Any, port);
+            /*Получаем сообщение*/
+            StringBuilder builder = new StringBuilder();
+            int bytes = 0; // количество полученных байтов
+            byte[] data = new byte[256]; // буфер для получаемых данных
+            /*Получаем данные и преобразуем их в DataSet*/
+            bytes = remoteListener.ReceiveFrom(data, ref remoteIp);
+            builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
+            DataSet initStructure = new DataSet(builder.ToString());
+            /*Проверяем операцию
+              Как только отловили команду INIT, инициализируем удаленного пользователя*/
+            if (initStructure.command == DataSet.ConnectionCommands.INIT)
+            {
+                /*Получаем ip, с которого пришел сигнал*/
+                client = remoteIp as IPEndPoint;
+                client.Port = Global.receivePort;
+                remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], client.Address);
+            }
+            else
+                return false;
+            #endregion
+            #region PASSWORD
+            /*Проверяем наличие удаленного устройства в сохраненных*/
+            if(!savedDevices.Contains(remoteClient))
+            {
+                /*Устройства в сохраненных нет. Запрашиваем пароль*/
+                DataSet passStructure = new DataSet(DataSet.ConnectionCommands.PASSWORD);
+                Send(passStructure);
+                /*Ждем ответа*/
+                passStructure = ReadPackage(client);
+                /*Проверяем операцию
+                    Как только отловили команду PASSWORD, проверяем указанный в сообщении пароль*/
+                if (passStructure.command == DataSet.ConnectionCommands.PASSWORD)
+                {
+                    if (passStructure.variables[0] != securityCode)
+                        return false;
+                }
+                else
+                    return false;
+            }
+            #endregion
+            return true;
+
+        }
+
+        /*Чтение одного пакета*/
+        private DataSet ReadPackage (IPEndPoint point)
+        {
+            /*Получаем сообщение*/
+            StringBuilder builder = new StringBuilder();
+            int bytes = 0; // количество полученных байтов
+            byte[] data = new byte[256]; // буфер для получаемых данных
+            /*Получаем данные и преобразуем их в DataSet*/
+            EndPoint ip = point as EndPoint;
+            bytes = remoteListener.ReceiveFrom(data, ref ip);
+            builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
+            return new DataSet(builder.ToString());
+
+        }
+
         /*Отправка данных*/
         public void Send(DataSet package)
         {
-            byte[] data = Encoding.Unicode.GetBytes(package.package);
-            remoteListener.SendTo(data, host);
+            byte[] data = package.ToByteArray();
+            remoteListener.SendTo(data, client);
         }
     }
 
@@ -149,7 +211,7 @@ namespace WinFormTry_1
         {
             /*Если ссылаемый объект проинициализирован*/
             if (device.username != null & device.device != null)
-                foreach (RemoteDevice d in Global.savedDevices)
+                foreach (RemoteDevice d in RemoteConnection.savedDevices)
                 {
                     if (device.Equals(d))
                         return true;

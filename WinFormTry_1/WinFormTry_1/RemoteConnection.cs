@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Timers;
+using NATUPNPLib;
+
 
 namespace WinFormTry_1
 {
@@ -61,7 +63,7 @@ namespace WinFormTry_1
             this.securityCode = Global.securityCode;
 
             /*Инициализируем сокет*/
-            remoteListener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            remoteListener = new Socket(host.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             /*Запуск асинхронного прослушивания сокета*/
             Task listeningTask = new Task(Listen);
             listeningTask.Start();
@@ -72,6 +74,10 @@ namespace WinFormTry_1
         {
             try
             {
+                UPnPNAT nat = new UPnPNAT();
+                IStaticPortMappingCollection mappings = nat.StaticPortMappingCollection;
+                //mappings.Add(Global.port, "UDP", Global.port, "192.168.0.105", true, "Local Web Server");
+                mappings.Add(Global.port, "UDP", Global.port, "46.72.20.122", true, "Local Web Server"); 
                 /*Привязываем сокет к серверному адресу*/
                 remoteListener.Bind(host);
                 /*Считываем начальные данные об удаленном устройстве*/
@@ -86,7 +92,7 @@ namespace WinFormTry_1
                     EndPoint remoteIp = new IPEndPoint(IPAddress.Any, port);
                     /*Получаем данные и преобразуем их в DataSet*/
                     bytes = remoteListener.ReceiveFrom(data, ref remoteIp);
-                    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                    builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
                     DataSet initStructure = new DataSet(builder.ToString());
                     /*Проверяем операцию
                       Как только отловили команду INIT, инициализируем удаленного пользователя*/
@@ -99,7 +105,9 @@ namespace WinFormTry_1
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                DialogForm.Show("Ошибка", ex.ToString(), Global.DialogTypes.message); }
         }
 
         /*Отправка данных*/

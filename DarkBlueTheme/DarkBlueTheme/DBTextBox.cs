@@ -46,7 +46,7 @@ namespace DarkBlueTheme
             if (this.Text == initialText)
             {
                 this.Text = "";
-                this.ForeColor = Color.Black;
+                this.ForeColor = Color.FromArgb(40,40,40);
             }
         }
     }

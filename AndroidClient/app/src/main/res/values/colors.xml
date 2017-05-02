@@ -9,6 +9,7 @@
     <color name="dbColorAccent">#EFEFFF</color>
     <!--Цвета View-->
     <color name="dbViewBackground">#303040</color>
+    <color name="dbPressedViewBackground">#404050</color>
     <color name="dbViewTextColor">#A1A1A1</color>
     
 </resources>

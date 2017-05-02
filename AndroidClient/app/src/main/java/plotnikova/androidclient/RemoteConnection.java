@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -120,6 +122,7 @@ public class RemoteConnection extends Thread {
         clientSocket.close();
     }
 
+
     private Boolean Connect()
     {
 
@@ -138,19 +141,7 @@ public class RemoteConnection extends Thread {
             parent.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    final EditText input = new EditText(parent);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-                    builder.setTitle("Ввод пароля")
-                            //.setView(input)
-                            .setCancelable(false)
-                            .setPositiveButton("ОК",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.cancel();
-                                        }
-                                    });
-                    builder.show();
+                    parent.showDialog(0);
                 }
             });
         }

@@ -1,16 +1,21 @@
 package plotnikova.androidclient;
 
+import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private RemoteConnection connection;
     private ConnectionFragment connectionFragment;
     private ComputersFragment computersFragment;
+    TableLayout view;
 
     BottomNavigationView navigation;
 
@@ -91,4 +97,23 @@ public class MainActivity extends AppCompatActivity {
             wrongIpError.show();
         }
     }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Ввод пароля");
+        view = (TableLayout) getLayoutInflater()
+                .inflate(R.layout.dialog_password,null);
+        adb.setView(view);
+        return adb.create();
+    }
+
+    /*@Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        if(id==0)
+        {
+            EditText password = (EditText) findViewById(R.id.passwordText);
+        }
+    }*/
 }
+

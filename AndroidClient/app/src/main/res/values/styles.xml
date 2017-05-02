@@ -10,7 +10,7 @@
     </style>
 
     <style name="DarkBlue.View">
-        <item name="android:background">@color/dbViewBackground</item>
+        <item name="android:background">@drawable/button_press</item>
         <item name="android:textColor">@color/dbViewTextColor</item>
         <item name="android:textSize">@dimen/viewTextSize</item>
     </style>

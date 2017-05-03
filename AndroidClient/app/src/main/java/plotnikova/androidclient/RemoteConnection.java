@@ -131,27 +131,57 @@ public class RemoteConnection extends Thread {
 
     private Boolean Connect()
     {
-
-        /*INIT*/
-        /*Шлем пакет инициализации*/
-        DataSet initPack = new DataSet(DataSet.ConnectionCommands.INIT);
-        initPack.add(username);
-        initPack.add(device);
-        send(initPack);
-        /*end INIT*/
-
-        /*PASSWORD & CONNECT*/
-        DataSet passPack = receive();
-        /*Получили запрос пароля*/
-        if(passPack.command == DataSet.ConnectionCommands.PASSWORD) {
-            parent.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    parent.showDialog(PASSWORD_DIALOG_ID);
-                }
-            });
+        int step=0;
+        while(true) {
+            switch (step) {
+                //INIT
+                case 0:
+                /*Шлем пакет инициализации*/
+                    DataSet initPack = new DataSet(DataSet.ConnectionCommands.INIT);
+                    initPack.add(username);
+                    initPack.add(device);
+                    send(initPack);
+                    step++;
+                    break;
+                //PASSWORD/EXIT
+                case 1:
+                    DataSet passPack = receive();
+                /*Получили запрос пароля*/
+                    if (passPack.command == DataSet.ConnectionCommands.PASSWORD) {
+                    /*Открываем диалог в главном потоке*/
+                        parent.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                parent.showDialog(PASSWORD_DIALOG_ID);
+                            }
+                        });
+                    /*Ждем, пока пользователь не введет пароль/выйдет из диалога*/
+                        while (Global.getInstance().getCommand() == DataSet.ConnectionCommands.NONE)
+                            ;
+                    /*Проверяем команду*/
+                        switch (Global.getInstance().getCommand()) {
+                            case PASSWORD:
+                                //TODO: добавить отправку пароля серверу
+                                break;
+                            case EXIT:
+                                //TODO: добавить отправку команды EXIT серверу
+                                return false;
+                        }
+                    }
+                /*Получили другую команду (CONNECT/EXIT)*/
+                    else {
+                        step++;
+                    }
+                    break;
+                /*CONNECT/EXIT*/
+                case 2:
+                    //TODO: добавить обработку команды CONNECT или EXIT, пришежшей от сервера
+                    step++;
+                    break;
+                /*Если инициализация прошла успешно, возвращаем true*/
+                case 3:
+                    return true;
+            }
         }
-        /*end PASSWORD & CONNECT*/
-        return true;
     }
 }

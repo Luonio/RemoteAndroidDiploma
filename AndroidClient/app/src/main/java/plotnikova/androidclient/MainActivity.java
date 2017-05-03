@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
             InetAddress adress = InetAddress.getByName(ip);
             /*Получаем строки имени пользователя и кода безопасности*/
             String username = connectionFragment.nameView.getText().toString();
-            if(username==""|username==null)
+            if(username.equals(""))
                 connection = new RemoteConnection(this,adress);
             else
                 connection = new RemoteConnection(this,username,adress);
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 //Отмена
                 builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        /*TODO: реализовать отправку команты CANCEL серверу*/
+                        Global.getInstance().setCommand(DataSet.ConnectionCommands.EXIT);
                         removeDialog(PASSWORD_DIALOG_ID);
                     }
                 });
@@ -133,8 +133,8 @@ public class MainActivity extends AppCompatActivity {
                 //ОК
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        Global.getInstance().setCommand(DataSet.ConnectionCommands.PASSWORD);
                         Global.getInstance().setPassword(pass.getText().toString());
-                        /*TODO: реализовать отправку пароля серверу*/
                         removeDialog(PASSWORD_DIALOG_ID);
                     }
                 });
@@ -145,5 +145,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return dialog;
     }
+
+
 }
 

@@ -8,12 +8,14 @@ import android.app.Application;
 
 public final class Global {
 
-    private String connectionPassword;
+    private String password;
+    private DataSet.ConnectionCommands command;
 
     private static final Global instance = new Global();
 
     private Global() {
-        connectionPassword = new String();
+        password = new String();
+        command = DataSet.ConnectionCommands.NONE;
     }
 
     public static Global getInstance() {
@@ -21,10 +23,18 @@ public final class Global {
     }
 
     public String getPassword(){
-        return connectionPassword;
+        return password;
     }
 
     public void setPassword(String psw){
-        this.connectionPassword=psw;
+        this.password=psw;
+    }
+
+    public DataSet.ConnectionCommands getCommand(){
+        return command;
+    }
+
+    public void setCommand (DataSet.ConnectionCommands cmd){
+        this.command = cmd;
     }
 }

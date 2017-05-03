@@ -6,13 +6,25 @@ import android.app.Application;
  * Created by Алёна on 02.05.2017.
  */
 
-public final class Global extends Application {
-    private static final Global ourInstance = new Global();
+public final class Global {
 
-    public static Global getInstance() {
-        return ourInstance;
-    }
+    private String connectionPassword;
+
+    private static final Global instance = new Global();
 
     private Global() {
+        connectionPassword = new String();
+    }
+
+    public static Global getInstance() {
+        return instance;
+    }
+
+    public String getPassword(){
+        return connectionPassword;
+    }
+
+    public void setPassword(String psw){
+        this.connectionPassword=psw;
     }
 }

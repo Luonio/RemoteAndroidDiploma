@@ -9,6 +9,7 @@ using System.Timers;
 using Open.Nat;
 using System.Threading;
 
+
 namespace WinFormTry_1
 {
     public class RemoteConnection
@@ -82,8 +83,7 @@ namespace WinFormTry_1
 
             /*Инициализируем сокет*/
             remoteListener = new Socket(host.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            /*Запуск асинхронного прослушивания сокета*/
-            ListenAsync();
+            Task.Run(ListenAsync);
         }
 
         /*Поток для приема подключений*/
@@ -98,20 +98,21 @@ namespace WinFormTry_1
                 // create a new mapping in the router [external_ip:1702 -> host_machine:1602]
                 await device.GetExternalIPAsync();
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, "Server"));
+
                 /*Привязываем сокет к серверному адресу*/
                 remoteListener.Bind(host);
                 /*Крутимся в цикле, пока не завершим инициализацию удаленного устройства*/
-                while (!Connect()) ;
-
+                while (!(await Connect())) ;
             }
             catch (Exception ex)
             {
                 DialogForm.Show("Ошибка", ex.ToString(), Global.DialogTypes.message);
             }
+               
         }
 
         /*Выполняет все этапы подключения клиента к серверу*/
-        private bool Connect ()
+        private async Task<bool> Connect ()
         {
             #region INIT
             /*Считываем начальные данные об удаленном устройстве*/

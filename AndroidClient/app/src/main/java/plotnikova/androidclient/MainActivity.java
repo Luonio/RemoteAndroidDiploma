@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 //ОК
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        String password = pass.getText().toString();
+                        Global.getInstance().setPassword(pass.getText().toString());
                         /*TODO: реализовать отправку пароля серверу*/
                         removeDialog(PASSWORD_DIALOG_ID);
                     }

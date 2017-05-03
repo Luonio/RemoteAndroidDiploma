@@ -154,44 +154,4 @@ public class RemoteConnection extends Thread {
         /*end PASSWORD & CONNECT*/
         return true;
     }
-
-    /*@Override
-    protected Dialog onCreateDialog(int id) {
-        AlertDialog dialog;
-        switch(id)
-        {
-            case PASSWORD_DIALOG_ID:
-                LayoutInflater inflater = (LayoutInflater) parent.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                final View layout = inflater.inflate(R.layout.dialog_password, (ViewGroup) parent.findViewById(R.id.passDialog));
-                final EditText pass = (EditText) layout.findViewById(R.id.passwordText);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(parent);
-                builder.setTitle("Enter Password");
-                builder.setView(layout);
-
-                /*Добавяляем кнопки*/
-                //Отмена
-                /*builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        /*TODO: реализовать отправку команты CANCEL серверу*/
-                        /*parent.removeDialog(PASSWORD_DIALOG_ID);
-                    }
-                });
-
-                //ОК
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String password = pass.getText().toString();
-                        /*TODO: реализовать отправку пароля серверу*/
-                       /* parent.removeDialog(PASSWORD_DIALOG_ID);
-                    }
-                });
-                dialog=builder.create();
-                break;
-            default:
-                dialog=null;
-        }
-        return dialog;
-    }*/
 }

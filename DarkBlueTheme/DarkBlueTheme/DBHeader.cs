@@ -79,7 +79,7 @@ namespace DarkBlueTheme
             this.Height = GetSystemMetrics(Indexes.SM_CYCAPTION) + 7;
             this.Location = new Point(0, 0);
             this.BackColor = Color.FromArgb(0, 10, 30); ;
-            this.ForeColor = Color.FromArgb(230, 255, 255);
+            this.ForeColor = Color.FromArgb(207, 207, 220);
             this.Load += DBHeader_Load;
             this.MouseDown += DBHeader_MouseDown;
             this.MouseMove += DBHeader_MouseMove;

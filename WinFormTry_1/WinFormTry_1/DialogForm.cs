@@ -71,7 +71,6 @@ namespace WinFormTry_1
             bt.Text = text;
             bt.Location = location;
             bt.FlatStyle = FlatStyle.Flat;
-            bt.BackColor = Global.buttonColor;
             /*Обрабатываем нажатие на левую кнопку мыши*/
             bt.MouseClick += new MouseEventHandler((o, mEv) =>
              {

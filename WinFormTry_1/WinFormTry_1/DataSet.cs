@@ -23,11 +23,12 @@ namespace WinFormTry_1
         public ConnectionCommands command;
 
         /*Массив данных*/
-        public String[] variables;
+        public List<String> variables = new List<String>();
 
         /*Пакет*/
         public String package;
 
+        #region Конструкторы
         public DataSet()
         {
             this.command = ConnectionCommands.NONE;
@@ -46,13 +47,39 @@ namespace WinFormTry_1
             FromString(package.ToString());
         }
 
+        /*Получаем команду для инициализации пакета*/
+        public DataSet(ConnectionCommands command)
+        {
+            this.command = command;
+            this.package = ToString(command);
+        }
+        #endregion
+
+        /*Добавление переменной в variables*/
+        public void Add(Object data)
+        {
+            if (variables.Count() == 0)
+                package += data.ToString();
+            else
+                package += (String.Format("," + data.ToString()));
+            variables.Add(data.ToString());
+
+        }
+
+        /*Преобразует набор данных в массив байтов*/
+        public Byte[] ToByteArray()
+        {
+            return Encoding.ASCII.GetBytes(package);
+        }
+
         /*Делим строку на команду и массив данных*/
         private void FromString(String package)
         {
             String[] tmpArr = package.Split('\\');
             this.command = ToCommand(tmpArr[0]);
-            if (tmpArr[1] != null)
-                variables = tmpArr[1].Split(',');
+            if (tmpArr[1] != "")
+                foreach (String value in tmpArr[1].Split(','))
+                    variables.Add(value);
             this.package = package;
         }
 
@@ -79,8 +106,29 @@ namespace WinFormTry_1
                 default:
                     return ConnectionCommands.NONE;
             }
+        }        
+
+        /*Преобразует команду в строку*/
+        private String ToString(ConnectionCommands command)
+        {
+            switch (command)
+            {
+                case ConnectionCommands.INIT:
+                    return "0x01\\";
+                case ConnectionCommands.PASSWORD:
+                    return "0x02\\";
+                case ConnectionCommands.CONNECT:
+                    return "0x03\\";
+                case ConnectionCommands.DECLINE:
+                    return "0x04\\";
+                case ConnectionCommands.EXIT:
+                    return "0x05\\";
+                case ConnectionCommands.ERROR:
+                    return "0x06\\";
+                default:
+                    return "0x00\\";
+            }
         }
 
-        
     }
 }

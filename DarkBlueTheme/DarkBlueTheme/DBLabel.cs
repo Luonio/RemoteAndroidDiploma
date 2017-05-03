@@ -16,7 +16,7 @@ namespace DarkBlueTheme
         public DBLabel()
         {
             InitializeComponent();
-            this.ForeColor = Color.FromArgb(230, 255, 255);
+            this.ForeColor = Color.FromArgb(207, 207, 220);
             this.AutoSize = true;
         }
 
@@ -24,7 +24,7 @@ namespace DarkBlueTheme
         {
             InitializeComponent();
             this.Text = text;
-            this.ForeColor = Color.FromArgb(230, 255, 255);
+            this.ForeColor = Color.FromArgb(207, 207, 220);
             this.AutoSize = true;
 
         }

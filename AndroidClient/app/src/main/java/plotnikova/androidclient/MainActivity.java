@@ -1,16 +1,26 @@
 package plotnikova.androidclient;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navigation;
 
     android.app.FragmentTransaction trans;
+
+    /*Константы для диалогов*/
+    private static final int PASSWORD_DIALOG_ID = 0;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -81,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 connection = new RemoteConnection(this,adress);
             else
                 connection = new RemoteConnection(this,username,adress);
-            connection.run();
+            connection.start();
         }
         /*Если был введен некорректный ip-адрес*/
         catch (UnknownHostException ex) {
@@ -91,4 +104,46 @@ public class MainActivity extends AppCompatActivity {
             wrongIpError.show();
         }
     }
+
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        android.app.AlertDialog dialog;
+        switch(id)
+        {
+            case PASSWORD_DIALOG_ID:
+                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                final View layout = inflater.inflate(R.layout.dialog_password, (ViewGroup) findViewById(R.id.passDialog));
+                final EditText pass = (EditText) layout.findViewById(R.id.passwordText);
+
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+                builder.setTitle("Enter Password");
+                builder.setView(layout);
+
+                /*Добавяляем кнопки*/
+                //Отмена
+                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        /*TODO: реализовать отправку команты CANCEL серверу*/
+                        removeDialog(PASSWORD_DIALOG_ID);
+                    }
+                });
+
+                //ОК
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String password = pass.getText().toString();
+                        /*TODO: реализовать отправку пароля серверу*/
+                        removeDialog(PASSWORD_DIALOG_ID);
+                    }
+                });
+                dialog=builder.create();
+                break;
+            default:
+                dialog=null;
+        }
+        return dialog;
+    }
 }
+

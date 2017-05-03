@@ -70,13 +70,18 @@ public class MainActivity extends AppCompatActivity {
         trans.commit();
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        Global.getInstance().setToastHeight(navigation.getHeight());
     }
 
     public void connectButton_onClick(View v)
     {
-        /*Разрешаем работу с сетью с основного потока*/
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
-        StrictMode.setThreadPolicy(policy);
+        if(connection!=null)
+            connection=null;
+        else {
+            /*Разрешаем работу с сетью с основного потока*/
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         String ip = connectionFragment.ipView.getText().toString();
         if(ip.equals("")) {
             Toast emptyIpError = Toast.makeText(getApplicationContext(),

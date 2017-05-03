@@ -174,10 +174,16 @@ namespace WinFormTry_1
                                 Как только отловили команду PASSWORD, проверяем указанный в сообщении пароль*/
                             if (passStructure.command == DataSet.ConnectionCommands.PASSWORD)
                             {
-                                if (passStructure.variables[0] != securityCode)
-                                    access = AccessLevel.None;
-                                else
+                                if (passStructure.variables[0].Equals(securityCode))
                                     access = AccessLevel.Connect;
+                                else
+                                {
+                                    /*Пришел неверный пароль. Отправляем сообщение*/
+                                    passStructure = new DataSet(DataSet.ConnectionCommands.EXIT);
+                                    passStructure.Add("Неверный пароль");
+                                    Send(passStructure);
+                                    access = AccessLevel.None;
+                                }
                             }
                             else if (passStructure.command == DataSet.ConnectionCommands.EXIT)
                             {

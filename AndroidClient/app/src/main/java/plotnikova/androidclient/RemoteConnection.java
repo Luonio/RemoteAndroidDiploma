@@ -8,11 +8,13 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -161,23 +163,42 @@ public class RemoteConnection extends Thread {
                     /*Проверяем команду*/
                         switch (Global.getInstance().getCommand()) {
                             case PASSWORD:
-                                //TODO: добавить отправку пароля серверу
+                                /*Отправляем серверу пароль*/
+                                passPack = new DataSet(DataSet.ConnectionCommands.PASSWORD);
+                                passPack.add(Global.getInstance().getPassword());
+                                send(passPack);
                                 break;
                             case EXIT:
-                                //TODO: добавить отправку команды EXIT серверу
+                                /*Отправляем серверу команду EXIT*/
+                                passPack = new DataSet(DataSet.ConnectionCommands.EXIT);
+                                send(passPack);
                                 return false;
                         }
                     }
-                /*Получили другую команду (CONNECT/EXIT)*/
+                /*Получили другую команду (CONNECT)*/
                     else {
                         step++;
                     }
                     break;
                 /*CONNECT/EXIT*/
                 case 2:
-                    //TODO: добавить обработку команды CONNECT или EXIT, пришежшей от сервера
-                    step++;
-                    break;
+                    final DataSet connectPack = receive();
+                    if(connectPack.command==DataSet.ConnectionCommands.CONNECT) {
+                        step++;
+                        break;
+                    }
+                    else if(connectPack.command== DataSet.ConnectionCommands.EXIT) {
+                        parent.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                            Toast wrongPassError = Toast.makeText(parent.getApplicationContext(),
+                                    "Неверный пароль", Toast.LENGTH_SHORT);
+                                wrongPassError.setGravity(Gravity.BOTTOM, 0, 150);
+                                wrongPassError.show();
+                            }
+                        });
+                        return false;
+                    }
                 /*Если инициализация прошла успешно, возвращаем true*/
                 case 3:
                     return true;

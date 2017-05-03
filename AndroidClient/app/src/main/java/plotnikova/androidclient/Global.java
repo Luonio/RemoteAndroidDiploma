@@ -10,12 +10,14 @@ public final class Global {
 
     private String password;
     private DataSet.ConnectionCommands command;
+    private int toastHeight;
 
     private static final Global instance = new Global();
 
     private Global() {
         password = new String();
         command = DataSet.ConnectionCommands.NONE;
+        toastHeight = 0;
     }
 
     public static Global getInstance() {
@@ -25,7 +27,6 @@ public final class Global {
     public String getPassword(){
         return password;
     }
-
     public void setPassword(String psw){
         this.password=psw;
     }
@@ -33,8 +34,16 @@ public final class Global {
     public DataSet.ConnectionCommands getCommand(){
         return command;
     }
-
     public void setCommand (DataSet.ConnectionCommands cmd){
         this.command = cmd;
+    }
+
+    public int getToastHeight()
+    {
+        return toastHeight;
+    }
+    public void setToastHeight (int height)
+    {
+        toastHeight = height;
     }
 }

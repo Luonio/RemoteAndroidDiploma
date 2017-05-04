@@ -20,6 +20,8 @@ namespace WinFormTry_1
         {
             this.serverActions = new Queue<DataSet>();
             this.clientActions = new Queue<DataSet>();
+            /*Запускаем обработку действий*/
+            Task.Run(ExecuteActionsAsync);
         }
         #endregion
 
@@ -32,7 +34,7 @@ namespace WinFormTry_1
                 {
                     DataSet currentAction;
                     lock (serverActions)
-                        currentAction = serverActions.Dequeue();
+                        currentAction = serverActions.Dequeue();                   
                     switch (currentAction.command)
                     {
                         //TODO: сделать переключатель действий для первой команды в очереди
@@ -51,9 +53,7 @@ namespace WinFormTry_1
             INIT = 0x01,
             PASSWORD = 0x02,
             CONNECT = 0x03,
-            DECLINE = 0x04,
             EXIT = 0x05,
-            ERROR = 0x06
         }
 
         /*Команда*/

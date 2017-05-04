@@ -132,11 +132,10 @@ namespace WinFormTry_1
                 writeCommands.Start();
                 /*Ожидаем завершения задач*/
                 Task.WaitAll(readCommands, executeActions, writeCommands);
-
             }
             catch (Exception ex)
             {
-                DialogForm.Show("Ошибка", ex.Message, Global.DialogTypes.message);
+                DialogForm.Show("Ошибка", ex.ToString(), Global.DialogTypes.message);
             }
                
         }

@@ -6,8 +6,45 @@ using System.Threading.Tasks;
 
 namespace WinFormTry_1
 {
+    class RemoteActions
+    {
+        #region Переменные
+        /*Действия, полученные от клиента для реализации на сервере*/
+        public Queue<DataSet> serverActions;
+        /*Дествия, отправляемые сервером для реализации на клиенте*/
+        public Queue<DataSet> clientActions;
+        #endregion
+
+        #region Конструкторы
+        public RemoteActions()
+        {
+            this.serverActions = new Queue<DataSet>();
+            this.clientActions = new Queue<DataSet>();
+            /*Запускаем обработку действий*/
+            Task.Run(ExecuteActionsAsync);
+        }
+        #endregion
+
+        /*Выполнение полученных от клиента команд*/
+        public async Task ExecuteActionsAsync()
+        {
+            while (true)
+            {
+                if (serverActions.Count != 0)
+                {                    
+                    DataSet currentAction = serverActions.Dequeue();
+                    switch (currentAction.command)
+                    {
+                        //TODO: сделать переключатель действий для первой команды в очереди
+                    }
+                }
+            }
+        }
+    }
+
     public class DataSet
     {
+        #region Переменные
         public enum ConnectionCommands
         {
             NONE = 0x00,
@@ -27,6 +64,7 @@ namespace WinFormTry_1
 
         /*Пакет*/
         public String package;
+        #endregion
 
         #region Конструкторы
         public DataSet()
@@ -55,6 +93,7 @@ namespace WinFormTry_1
         }
         #endregion
 
+        #region Методы
         /*Добавление переменной в variables*/
         public void Add(Object data)
         {
@@ -86,7 +125,7 @@ namespace WinFormTry_1
         /*Преобразует строку в команду*/
         private ConnectionCommands ToCommand(String str)
         {
-            switch(str)
+            switch (str)
             {
                 /*0x01:remoteUsername,remoteDevice
                  var0 = username
@@ -106,7 +145,7 @@ namespace WinFormTry_1
                 default:
                     return ConnectionCommands.NONE;
             }
-        }        
+        }
 
         /*Преобразует команду в строку*/
         private String ToString(ConnectionCommands command)
@@ -129,6 +168,6 @@ namespace WinFormTry_1
                     return "0x00\\";
             }
         }
-
+        #endregion
     }
 }

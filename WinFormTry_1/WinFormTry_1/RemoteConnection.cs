@@ -29,6 +29,9 @@ namespace WinFormTry_1
         /*Android-клиент, подключающийся к компьютеру*/
         RemoteDevice remoteClient;
 
+        /*Действия сервера и клиента*/
+        RemoteActions actions;
+
         private Socket remoteListener;
 
         /*Уровень доступа клиента.
@@ -98,11 +101,12 @@ namespace WinFormTry_1
 
             /*Инициализируем сокет*/
             remoteListener = new Socket(host.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            Task.Run(ListenAsync);
+            actions = new RemoteActions();
+            Task.Run(RunAsync);
         }
 
         /*Поток для приема подключений*/
-        public async Task ListenAsync()
+        public async Task RunAsync()
         {
             try
             {
@@ -118,6 +122,9 @@ namespace WinFormTry_1
                 remoteListener.Bind(host);
                 /*Ждем инициализации удаленного устройства*/
                 await ConnectAsync();
+                /*Запускаем поток чтения данных*/
+                Task.Run(ReadAsync);
+                /*Запускаем поток отправки данных*/
             }
             catch (Exception ex)
             {
@@ -220,6 +227,13 @@ namespace WinFormTry_1
             }
         }
 
+        /*Читает данные, получаемые от клиента в цикле и заносит их в очередь*/
+        private async Task ReadAsync()
+        {
+            while(true)
+                actions.serverActions.Enqueue(ReadPackage(client));
+        }
+
         /*Чтение одного пакета*/
         private DataSet ReadPackage (EndPoint point)
         {
@@ -240,8 +254,6 @@ namespace WinFormTry_1
             remoteListener.SendTo(data, client);
         }
     }
-
-
 
     /*Подключаемое устройство*/
     public class RemoteDevice

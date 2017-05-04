@@ -31,10 +31,8 @@ namespace WinFormTry_1
             while (true)
             {
                 if (serverActions.Count != 0)
-                {
-                    DataSet currentAction;
-                    lock (serverActions)
-                        currentAction = serverActions.Dequeue();                   
+                {                    
+                    DataSet currentAction = serverActions.Dequeue();
                     switch (currentAction.command)
                     {
                         //TODO: сделать переключатель действий для первой команды в очереди
@@ -53,7 +51,9 @@ namespace WinFormTry_1
             INIT = 0x01,
             PASSWORD = 0x02,
             CONNECT = 0x03,
+            DECLINE = 0x04,
             EXIT = 0x05,
+            ERROR = 0x06
         }
 
         /*Команда*/

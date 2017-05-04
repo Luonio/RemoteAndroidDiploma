@@ -46,6 +46,8 @@ public class RemoteConnection extends Thread {
     DatagramSocket clientSocket;
     DatagramSocket receiveSocket;
 
+    final Global global = Global.getInstance();
+
     /*Константы для диалогов*/
     private static final int PASSWORD_DIALOG_ID = 0;
 
@@ -115,6 +117,7 @@ public class RemoteConnection extends Thread {
     @Override
     public void run()
     {
+
         try{
             clientSocket = new DatagramSocket();
             receiveSocket = new DatagramSocket(host.port);
@@ -158,15 +161,16 @@ public class RemoteConnection extends Thread {
                             }
                         });
                     /*Ждем, пока пользователь не введет пароль/выйдет из диалога*/
-                        while (Global.getInstance().getCommand() == DataSet.ConnectionCommands.NONE)
+                        while (global.getCommand() == DataSet.ConnectionCommands.NONE)
                             ;
                     /*Проверяем команду*/
-                        switch (Global.getInstance().getCommand()) {
+                        switch (global.getCommand()) {
                             case PASSWORD:
                                 /*Отправляем серверу пароль*/
                                 passPack = new DataSet(DataSet.ConnectionCommands.PASSWORD);
-                                passPack.add(Global.getInstance().getPassword());
+                                passPack.add(global.getPassword());
                                 send(passPack);
+                                step++;
                                 break;
                             case EXIT:
                                 /*Отправляем серверу команду EXIT*/
@@ -182,21 +186,17 @@ public class RemoteConnection extends Thread {
                     break;
                 /*CONNECT/EXIT*/
                 case 2:
-                    final DataSet connectPack = receive();
+                    DataSet connectPack = receive();
                     if(connectPack.command==DataSet.ConnectionCommands.CONNECT) {
+                        this.host.username = connectPack.variables.get(0);
+                        this.host.device = connectPack.variables.get(1);
+                        connectPack = new DataSet(DataSet.ConnectionCommands.CONNECT);
+                        send(connectPack);
                         step++;
                         break;
                     }
                     else if(connectPack.command== DataSet.ConnectionCommands.EXIT) {
-                        parent.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                            Toast wrongPassError = Toast.makeText(parent.getApplicationContext(),
-                                    "Неверный пароль", Toast.LENGTH_SHORT);
-                                wrongPassError.setGravity(Gravity.BOTTOM, 0, 150);
-                                wrongPassError.show();
-                            }
-                        });
+                        global.mainHandler.sendEmptyMessage(0);
                         return false;
                     }
                 /*Если инициализация прошла успешно, возвращаем true*/

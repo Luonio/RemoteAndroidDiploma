@@ -117,7 +117,7 @@ namespace WinFormTry_1
                 /*Привязываем сокет к серверному адресу*/
                 remoteListener.Bind(host);
                 /*Ждем инициализации удаленного устройства*/
-                await Connect();
+                await ConnectAsync();
             }
             catch (Exception ex)
             {
@@ -127,7 +127,7 @@ namespace WinFormTry_1
         }
 
         /*Выполняет все этапы подключения клиента к серверу*/
-        private async Task Connect ()
+        private async Task ConnectAsync ()
         {
             while (true)
             {
@@ -185,6 +185,7 @@ namespace WinFormTry_1
                                     access = AccessLevel.None;
                                 }
                             }
+                            /*Пользователь передумал вводить пароль. Отклоняем это подключение и ждем нового*/
                             else if (passStructure.command == DataSet.ConnectionCommands.EXIT)
                             {
                                 access = AccessLevel.None;
@@ -195,9 +196,23 @@ namespace WinFormTry_1
                             access = AccessLevel.Connect;
                         break;
                     #endregion
+                    #region CONNECT
                     case AccessLevel.Connect:
-                        access = AccessLevel.SendData;
+                        /*Отправляем клиенту информацию об этом устройстве*/
+                        DataSet connectStructure = new DataSet(DataSet.ConnectionCommands.CONNECT);
+                        connectStructure.Add(this.username);
+                        connectStructure.Add(this.device);
+                        Send(connectStructure);
+                        /*Получаем ответ от клиента*/
+                        connectStructure = ReadPackage(client);
+                        /*Если подключение успешно установлено, переходим к следующему шагу*/
+                        if (connectStructure.command == DataSet.ConnectionCommands.CONNECT)
+                            access = AccessLevel.SendData;
+                        /*Иначе ждем нового подключения*/
+                        else
+                            access = AccessLevel.None;
                         break;
+                    #endregion
                     /*Если получили доступ к передаче данных, выходим из метода инициализации*/
                     case AccessLevel.SendData:
                         return;

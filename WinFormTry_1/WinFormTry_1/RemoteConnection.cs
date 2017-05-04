@@ -29,6 +29,9 @@ namespace WinFormTry_1
         /*Android-клиент, подключающийся к компьютеру*/
         RemoteDevice remoteClient;
 
+        /*Действия сервера и клиента*/
+        RemoteActions actions;
+
         private Socket remoteListener;
 
         /*Уровень доступа клиента.
@@ -98,11 +101,12 @@ namespace WinFormTry_1
 
             /*Инициализируем сокет*/
             remoteListener = new Socket(host.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            Task.Run(ListenAsync);
+            actions = new RemoteActions();
+            Task.Run(RunAsync);
         }
 
         /*Поток для приема подключений*/
-        public async Task ListenAsync()
+        public async Task RunAsync()
         {
             try
             {
@@ -113,21 +117,32 @@ namespace WinFormTry_1
                 // create a new mapping in the router [external_ip:1702 -> host_machine:1602]
                 await device.GetExternalIPAsync();
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, "Server"));
-
                 /*Привязываем сокет к серверному адресу*/
                 remoteListener.Bind(host);
                 /*Ждем инициализации удаленного устройства*/
-                await Connect();
+                await ConnectAsync();                
+                /*Запускаем задачу чтения данных*/
+                Task readCommands = new Task(Read);
+                readCommands.Start();
+                /*Запускаем задачу обработки прочитанных данных*/
+                Task executeActions = actions.ExecuteActionsAsync();
+                executeActions.Start();
+                /*Запускаем задачу отправки данных*/
+                Task writeCommands = new Task(Write);
+                writeCommands.Start();
+                /*Ожидаем завершения задач*/
+                Task.WaitAll(readCommands, executeActions, writeCommands);
+
             }
             catch (Exception ex)
             {
-                DialogForm.Show("Ошибка", ex.ToString(), Global.DialogTypes.message);
+                DialogForm.Show("Ошибка", ex.Message, Global.DialogTypes.message);
             }
                
         }
 
         /*Выполняет все этапы подключения клиента к серверу*/
-        private async Task Connect ()
+        private async Task ConnectAsync ()
         {
             while (true)
             {
@@ -185,6 +200,7 @@ namespace WinFormTry_1
                                     access = AccessLevel.None;
                                 }
                             }
+                            /*Пользователь передумал вводить пароль. Отклоняем это подключение и ждем нового*/
                             else if (passStructure.command == DataSet.ConnectionCommands.EXIT)
                             {
                                 access = AccessLevel.None;
@@ -195,13 +211,49 @@ namespace WinFormTry_1
                             access = AccessLevel.Connect;
                         break;
                     #endregion
+                    #region CONNECT
                     case AccessLevel.Connect:
-                        access = AccessLevel.SendData;
+                        /*Отправляем клиенту информацию об этом устройстве*/
+                        DataSet connectStructure = new DataSet(DataSet.ConnectionCommands.CONNECT);
+                        connectStructure.Add(this.username);
+                        connectStructure.Add(this.device);
+                        Send(connectStructure);
+                        /*Получаем ответ от клиента*/
+                        connectStructure = ReadPackage(client);
+                        /*Если подключение успешно установлено, переходим к следующему шагу*/
+                        if (connectStructure.command == DataSet.ConnectionCommands.CONNECT)
+                            access = AccessLevel.SendData;
+                        /*Иначе ждем нового подключения*/
+                        else
+                            access = AccessLevel.None;
                         break;
+                    #endregion
                     /*Если получили доступ к передаче данных, выходим из метода инициализации*/
                     case AccessLevel.SendData:
                         return;
                 }
+            }
+        }
+
+        /*Читает данные, получаемые от клиента в цикле и заносит их в очередь*/
+        private void Read()
+        {
+            while (true)
+            {
+                DataSet result = ReadPackage(client);
+                lock (actions.serverActions)
+                    actions.serverActions.Enqueue(result);
+            }
+        }
+
+        private void Write()
+        {
+            while(true)
+            {
+                /*Если в clientActions есть элементы, отправляем их клиенту*/
+                if (actions.clientActions.Count != 0)
+                    lock(actions.clientActions)
+                        Send(actions.clientActions.Dequeue());
             }
         }
 
@@ -225,8 +277,6 @@ namespace WinFormTry_1
             remoteListener.SendTo(data, client);
         }
     }
-
-
 
     /*Подключаемое устройство*/
     public class RemoteDevice

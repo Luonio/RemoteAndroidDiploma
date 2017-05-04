@@ -32,7 +32,7 @@ namespace WinFormTry_1
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
 
-        public static String hostIP = "192.168.1.39";
+        public static String hostIP = "192.168.0.105";
         public static int receivePort = 65000;
         public static int sendPort = 65001;
         public static String username;

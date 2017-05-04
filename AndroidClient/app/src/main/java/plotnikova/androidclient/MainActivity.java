@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private ConnectionFragment connectionFragment;
     private ComputersFragment computersFragment;
 
+    final Global global = Global.getInstance();
+
     BottomNavigationView navigation;
 
     android.app.FragmentTransaction trans;
@@ -70,13 +72,34 @@ public class MainActivity extends AppCompatActivity {
         trans.commit();
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        Global.getInstance().setToastHeight(navigation.getHeight());
+        global.mainHandler = new Handler(){
+            public void handleMessage(Message msg){
+                /*Константы для Handler'а*/
+                final int WRONG_PASSWORD = 0;
+                switch (msg.what)
+                {
+                    /*Нужно вывести сообщение о неправильном пароле*/
+                    case WRONG_PASSWORD:
+                        Toast wrongPassError = Toast.makeText(getApplicationContext(),
+                                "Неверный пароль!", Toast.LENGTH_SHORT);
+                        wrongPassError.setGravity(Gravity.BOTTOM, 0, navigation.getHeight());
+                        wrongPassError.show();
+                        break;
+                }
+                //TODO: заполнить обработку
+            }
+        };
+        global.setToastHeight(navigation.getHeight());
     }
 
     public void connectButton_onClick(View v)
     {
-        if(connection!=null)
-            connection=null;
+        if(connection!=null) {
+            /*TODO: реализовать повторное подключение без ошибки*/
+            connection.stop();
+            connection.destroy();
+            connection = null;
+        }
         else {
             /*Разрешаем работу с сетью с основного потока*/
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitNetwork().build();
@@ -130,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 //Отмена
                 builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        Global.getInstance().setCommand(DataSet.ConnectionCommands.EXIT);
+                        global.setCommand(DataSet.ConnectionCommands.EXIT);
                         removeDialog(PASSWORD_DIALOG_ID);
                     }
                 });
@@ -138,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
                 //ОК
                 builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Global.getInstance().setCommand(DataSet.ConnectionCommands.PASSWORD);
-                        Global.getInstance().setPassword(pass.getText().toString());
+                        global.setCommand(DataSet.ConnectionCommands.PASSWORD);
+                        global.setPassword(pass.getText().toString());
                         removeDialog(PASSWORD_DIALOG_ID);
                     }
                 });

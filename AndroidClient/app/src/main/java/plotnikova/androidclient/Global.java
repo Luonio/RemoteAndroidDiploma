@@ -1,6 +1,8 @@
 package plotnikova.androidclient;
 
 import android.app.Application;
+import android.os.Handler;
+import android.provider.SyncStateContract;
 
 /**
  * Created by Алёна on 02.05.2017.
@@ -11,6 +13,7 @@ public final class Global {
     private String password;
     private DataSet.ConnectionCommands command;
     private int toastHeight;
+    public Handler mainHandler;
 
     private static final Global instance = new Global();
 

@@ -81,7 +81,6 @@
     <Compile Include="ChildFormsTemplate.Designer.cs">
       <DependentUpon>ChildFormsTemplate.cs</DependentUpon>
     </Compile>
-    <Compile Include="DataSet.cs" />
     <Compile Include="DialogForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -115,6 +114,7 @@
     <Compile Include="AltActionsControl.Designer.cs">
       <DependentUpon>AltActionsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="RemoteActions.cs" />
     <Compile Include="RemoteConnection.cs" />
     <EmbeddedResource Include="AltActionsControl.resx">
       <DependentUpon>AltActionsControl.cs</DependentUpon>

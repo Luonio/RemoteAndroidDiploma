@@ -116,6 +116,7 @@
     </Compile>
     <Compile Include="RemoteActions.cs" />
     <Compile Include="RemoteConnection.cs" />
+    <Compile Include="ScreenCapture.cs" />
     <EmbeddedResource Include="AltActionsControl.resx">
       <DependentUpon>AltActionsControl.cs</DependentUpon>
     </EmbeddedResource>

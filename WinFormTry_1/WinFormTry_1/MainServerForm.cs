@@ -223,17 +223,14 @@ namespace WinFormTry_1
         private void StartStop_MouseClick(object sender, EventArgs e)
         {           
         }
-
+        ScreenCapture screen = new ScreenCapture();
         /*Снимок экрана*/
         private void ScreenCapture_MouseClick(object sender, EventArgs e)
         {
-            Bitmap screenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
-            Graphics g = Graphics.FromImage(screenshot);
-            g.CopyFromScreen(0, 0, 0, 0, screenshot.Size);
-            if (Cursor.Current != null)
-                using (Icon cursor = Icon.FromHandle(Cursor.Current.Handle))
-                    g.DrawIcon(cursor, new Rectangle(Cursor.Position, cursor.Size));
-            g.Dispose();
+            //Bitmap screenshot = ScreenCapture.Capture();
+            
+            screen.Start();
+            ScreenCapture.GetScreenshot();
             //screenshot.Save("screenshotTry.jpg");        
         }
 

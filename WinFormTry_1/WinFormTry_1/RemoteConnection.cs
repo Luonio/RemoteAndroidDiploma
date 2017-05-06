@@ -115,8 +115,7 @@ namespace WinFormTry_1
                 // using SSDP protocol, it discovers NAT device.
                 var device = await nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
                 // create a new mapping in the router [external_ip:1702 -> host_machine:1602]
-                await device.GetExternalIPAsync();
-                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, "Server"));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, "Server"));                
                 /*Привязываем сокет к серверному адресу*/
                 remoteListener.Bind(host);
                 /*Ждем инициализации удаленного устройства*/

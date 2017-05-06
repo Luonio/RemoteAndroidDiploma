@@ -53,7 +53,9 @@ namespace WinFormTry_1
             CONNECT = 0x03,
             DECLINE = 0x04,
             EXIT = 0x05,
-            ERROR = 0x06
+            ERROR = 0x06,
+            SCREEN = 0x07,
+            FULLSCREEN = 0x08
         }
 
         /*Команда*/

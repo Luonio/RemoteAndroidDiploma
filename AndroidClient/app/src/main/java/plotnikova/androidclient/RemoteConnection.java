@@ -1,20 +1,8 @@
 package plotnikova.androidclient;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -117,7 +105,6 @@ public class RemoteConnection extends Thread {
     @Override
     public void run()
     {
-
         try{
             clientSocket = new DatagramSocket();
             receiveSocket = new DatagramSocket(host.port);
@@ -128,11 +115,11 @@ public class RemoteConnection extends Thread {
         /*Если получается успешно подключиться, начинаем удаленный сеанс*/
         if(Connect())
         {
+            global.mainHandler.sendEmptyMessage(1);
             while(true);
         }
         clientSocket.close();
     }
-
 
     private Boolean Connect()
     {

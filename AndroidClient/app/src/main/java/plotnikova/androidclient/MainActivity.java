@@ -3,25 +3,20 @@ package plotnikova.androidclient;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.net.InetAddress;
@@ -76,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(Message msg){
                 /*Константы для Handler'а*/
                 final int WRONG_PASSWORD = 0;
+                final int CONNECTION_DONE = 1;
                 switch (msg.what)
                 {
                     /*Нужно вывести сообщение о неправильном пароле*/
@@ -84,6 +80,12 @@ public class MainActivity extends AppCompatActivity {
                                 "Неверный пароль!", Toast.LENGTH_SHORT);
                         wrongPassError.setGravity(Gravity.BOTTOM, 0, navigation.getHeight());
                         wrongPassError.show();
+                        break;
+                    /*Ye;yj */
+                    case CONNECTION_DONE:
+                        Intent intent = new Intent(MainActivity.this,RemoteDesktopActivity.class);
+                        MainActivity.this.startActivity(intent);
+                        //TODO: запустить новую активити, передать ей объект connection, у connection сменить parent
                         break;
                 }
                 //TODO: заполнить обработку

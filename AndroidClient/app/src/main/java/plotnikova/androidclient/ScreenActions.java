@@ -6,6 +6,8 @@ import android.graphics.Point;
 import android.util.Size;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Queue;
@@ -47,16 +49,40 @@ public class ScreenActions extends Thread {
         /*Изображение*/
         public Bitmap image;
 
+        /*КОНСТРУКТОРЫ*/
         /*Получаем изображение из пакета*/
-        public ScreenPart(DataSet packet){
+        public ScreenPart(DataSet packet, Size sz){
             this.partNumber = new Integer(packet.variables.get(0));
             location = new Point(new Integer(packet.variables.get(1)),
                     new Integer(packet.variables.get(2)));
-            /*Получаем массив байтов изображения*/
-            byte[] bytes = ByteBuffer.allocate(packet.variables.get(3).length()).putLong(
-                    new Long(packet.variables.get(3))).array();
+            this.size = sz;
+            /*Получаем массив байтов с изображением*/
+            setImage(packet.variables.get(3));
+        }
 
+        /*МЕТОДЫ*/
+        /*Устанавливает изображение части, декодированнное из строки вида
+        * "число_число_число_...._число_число"*/
+        public void setImage(String value) {
+            byte[] byteImg = bytesFromString(value);
+            this.image = BitmapFactory.decodeByteArray(byteImg,0,byteImg.length);
+        }
 
+        /*Получаем массив байтов из строки*/
+        private byte[] bytesFromString(String str){
+            String[] stringArray = str.split("_");
+            ByteArrayOutputStream bt = new ByteArrayOutputStream(partsCount);
+            try {
+                for (int i = 0; i < stringArray.length; i++) {
+                    bt.write(stringArray[i].getBytes());
+                }
+            }
+            catch (IOException ex){
+                /*TODO: добавить обработчик*/
+            }
+            finally {
+                return bt.toByteArray();
+            }
         }
     }
 }

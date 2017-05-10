@@ -31,7 +31,7 @@ public class RemoteConnection extends Thread {
     /*Код безопасности*/
     public String securityCode;
     /*Сокет, по которому будем вести соединение*/
-    DatagramSocket clientSocket;
+    DatagramSocket sendSocket;
     DatagramSocket receiveSocket;
 
     final Global global = Global.getInstance();
@@ -80,7 +80,7 @@ public class RemoteConnection extends Thread {
             byte[] sendData = pack.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(
                     sendData, sendData.length, host.ip, host.port);
-            clientSocket.send(sendPacket);
+            sendSocket.send(sendPacket);
         }
         catch(IOException ex) {
             /*TODO: добавить обработчик*/
@@ -108,7 +108,7 @@ public class RemoteConnection extends Thread {
     public void run()
     {
         try{
-            clientSocket = new DatagramSocket();
+            sendSocket = new DatagramSocket();
             receiveSocket = new DatagramSocket(host.port);
         }
         catch (SocketException e) {
@@ -118,9 +118,10 @@ public class RemoteConnection extends Thread {
         if(Connect())
         {
             global.mainHandler.sendEmptyMessage(1);
+
             while(true);
         }
-        clientSocket.close();
+        sendSocket.close();
     }
 
     private Boolean Connect()

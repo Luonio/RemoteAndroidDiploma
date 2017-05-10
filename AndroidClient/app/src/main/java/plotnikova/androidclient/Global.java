@@ -15,6 +15,8 @@ public final class Global {
     private int toastHeight;
     public Handler mainHandler;
 
+    public ScreenActions screenActions;
+
     private static final Global instance = new Global();
 
     private Global() {

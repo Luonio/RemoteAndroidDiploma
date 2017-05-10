@@ -36,6 +36,8 @@ public class RemoteConnection extends Thread {
 
     final Global global = Global.getInstance();
 
+    final ScreenActions screenActions = global.screenActions;
+
     /*Константы для диалогов*/
     private static final int PASSWORD_DIALOG_ID = 0;
 

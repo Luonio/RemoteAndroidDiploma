@@ -6,42 +6,6 @@ using System.Threading.Tasks;
 
 namespace WinFormTry_1
 {
-    class RemoteActions
-    {
-        #region Переменные
-        /*Действия, полученные от клиента для реализации на сервере*/
-        public Queue<DataSet> serverActions;
-        /*Дествия, отправляемые сервером для реализации на клиенте*/
-        public Queue<DataSet> clientActions;
-        #endregion
-
-        #region Конструкторы
-        public RemoteActions()
-        {
-            this.serverActions = new Queue<DataSet>();
-            this.clientActions = new Queue<DataSet>();
-        }
-        #endregion
-
-        /*Выполнение полученных от клиента команд*/
-        public async Task ExecuteActionsAsync()
-        {
-            while (true)
-            {
-                if (serverActions.Count != 0)
-                {
-                    DataSet currentAction;
-                    lock (serverActions)
-                        currentAction = serverActions.Dequeue();
-                    switch (currentAction.command)
-                    {
-                        //TODO: сделать переключатель действий для первой команды в очереди
-                    }
-                }
-            }
-        }
-    }
-
     public class DataSet
     {
         #region Переменные
@@ -55,7 +19,7 @@ namespace WinFormTry_1
             EXIT = 0x05,
             ERROR = 0x06,
             SCREEN = 0x07,
-            FULLSCREEN = 0x08
+            SCREENINFO = 0x08
         }
 
         /*Команда*/

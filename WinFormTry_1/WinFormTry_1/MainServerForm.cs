@@ -151,6 +151,9 @@ namespace WinFormTry_1
             /*Генерируем случайный пароль*/
             Global.securityCode = GetRandomCode(8);
 
+            /*Инициализируем экранную переменную*/
+            Global.screenActions = new ScreenActions();
+
             /*Инициализируем сетевую переменную*/
             connection = new RemoteConnection();
 
@@ -223,15 +226,11 @@ namespace WinFormTry_1
         private void StartStop_MouseClick(object sender, EventArgs e)
         {           
         }
-        ScreenCapture screen = new ScreenCapture();
+
         /*Снимок экрана*/
         private void ScreenCapture_MouseClick(object sender, EventArgs e)
         {
-            //Bitmap screenshot = ScreenCapture.Capture();
-            
-            screen.Start();
-            ScreenCapture.GetScreenshot();
-            //screenshot.Save("screenshotTry.jpg");        
+           //screenshot.Save("screenshotTry.jpg");        
         }
 
         private void Chat_MouseClick(object sender, EventArgs e)

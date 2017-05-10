@@ -30,7 +30,8 @@ namespace WinFormTry_1
         RemoteDevice remoteClient;
 
         /*Действия сервера и клиента*/
-        RemoteActions actions;
+        ScreenActions screenActions = Global.screenActions;
+
 
         private Socket remoteListener;
 
@@ -95,13 +96,12 @@ namespace WinFormTry_1
         public RemoteConnection()
         {
             this.hostAdress = IPAddress.Parse(Global.hostIP);
-            this.port = Global.receivePort;
+            this.port = Global.screenPort;
             this.device = Environment.MachineName;
             this.securityCode = Global.securityCode;
 
             /*Инициализируем сокет*/
             remoteListener = new Socket(host.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            actions = new RemoteActions();
             Task.Run(RunAsync);
         }
 
@@ -123,14 +123,12 @@ namespace WinFormTry_1
                 /*Запускаем задачу чтения данных*/
                 Task readCommands = new Task(Read);
                 readCommands.Start();
-                /*Запускаем задачу обработки прочитанных данных*/
-                Task executeActions = actions.ExecuteActionsAsync();
-                executeActions.Start();
                 /*Запускаем задачу отправки данных*/
                 Task writeCommands = new Task(Write);
                 writeCommands.Start();
+                screenActions.Start();
                 /*Ожидаем завершения задач*/
-                Task.WaitAll(readCommands, executeActions, writeCommands);
+                Task.WaitAll(readCommands, writeCommands);
             }
             catch (Exception ex)
             {
@@ -165,7 +163,7 @@ namespace WinFormTry_1
                         {
                             /*Получаем ip, с которого пришел сигнал*/
                             client = remoteIp as IPEndPoint;
-                            client.Port = Global.receivePort;
+                            client.Port = Global.screenPort;
                             remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], client.Address);
                             access = AccessLevel.SendPassword;
                         }
@@ -239,8 +237,8 @@ namespace WinFormTry_1
             while (true)
             {
                 DataSet result = ReadPackage(client);
-                lock (actions.serverActions)
-                    actions.serverActions.Enqueue(result);
+                lock (screenActions.receiveQueue)
+                    screenActions.receiveQueue.Enqueue(result);
             }
         }
 
@@ -249,9 +247,9 @@ namespace WinFormTry_1
             while(true)
             {
                 /*Если в clientActions есть элементы, отправляем их клиенту*/
-                if (actions.clientActions.Count != 0)
-                    lock(actions.clientActions)
-                        Send(actions.clientActions.Dequeue());
+                if (screenActions.sendQueue.Count != 0)
+                    lock(screenActions.sendQueue)
+                        Send(screenActions.sendQueue.Dequeue());
             }
         }
 

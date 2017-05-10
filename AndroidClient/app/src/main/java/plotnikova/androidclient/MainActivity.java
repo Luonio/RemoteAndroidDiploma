@@ -98,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
     {
         if(connection!=null) {
             /*TODO: реализовать повторное подключение без ошибки*/
-            connection.stop();
-            connection.destroy();
             connection = null;
         }
         else {
@@ -122,10 +120,10 @@ public class MainActivity extends AppCompatActivity {
             /*Получаем строки имени пользователя и кода безопасности*/
             String username = connectionFragment.nameView.getText().toString();
             if(username.equals(""))
-                connection = new RemoteConnection(this,adress);
+                global.remoteConnection = new RemoteConnection(this,adress);
             else
-                connection = new RemoteConnection(this,username,adress);
-            connection.start();
+                global.remoteConnection = new RemoteConnection(this,username,adress);
+            global.remoteConnection.startConnection();
         }
         /*Если был введен некорректный ip-адрес*/
         catch (UnknownHostException ex) {

@@ -1,6 +1,7 @@
 package plotnikova.androidclient;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 
 
@@ -11,6 +12,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 /**
@@ -18,7 +24,7 @@ import java.net.UnknownHostException;
  */
 
 /*Класс, хранящий данные об удаленном подключении*/
-public class RemoteConnection extends Thread {
+public class RemoteConnection {
 
     /*Родительская Activity*/
     private Activity parent;
@@ -34,6 +40,8 @@ public class RemoteConnection extends Thread {
     DatagramSocket sendSocket;
     DatagramSocket receiveSocket;
 
+    ExecutorService service;
+
     final Global global = Global.getInstance();
 
     final ScreenActions screenActions = global.screenActions;
@@ -41,6 +49,7 @@ public class RemoteConnection extends Thread {
     /*Константы для диалогов*/
     private static final int PASSWORD_DIALOG_ID = 0;
 
+    /*---------КОНСТРУКТОРЫ---------*/
     public RemoteConnection(Activity ctx)
     {
         parent = ctx;
@@ -73,6 +82,32 @@ public class RemoteConnection extends Thread {
         host = new RemoteHost(ip, Integer.parseInt(parent.getString(R.string.remotePort)));
     }
 
+    /*---------МЕТОДЫ---------*/
+    /*Устанавливает родительскую форму для класса*/
+    public void setParent(Activity ctx){
+        this.parent = ctx;
+    }
+
+    /*Устанавливаем соединение*/
+    public void startConnection(){
+        this.service = Executors.newCachedThreadPool();
+        service.submit(new Runnable(){
+            @Override
+            public void run(){
+                try{
+                    sendSocket = new DatagramSocket();
+                    receiveSocket = new DatagramSocket(host.port);
+                }
+                catch (SocketException e) {
+                    /*TODO: заполнить обработку ошибки сокета*/
+                }
+                if(Connect()){
+                    global.mainHandler.sendEmptyMessage(1);
+                }
+            }
+        });
+    }
+
     /*Отправка набора данных на удаленный адрес*/
     public void send(DataSet pack) {
 
@@ -88,8 +123,7 @@ public class RemoteConnection extends Thread {
     }
 
     /*Получение набора данных с удаленного адреса*/
-    public DataSet receive()
-    {
+    public DataSet receive()    {
         try {
             byte[] receiveData = new byte[1024];
             DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length, host.ip, host.port);
@@ -103,35 +137,13 @@ public class RemoteConnection extends Thread {
         return null;
     }
 
-    /*Вся работа потока*/
-    @Override
-    public void run()
-    {
-        try{
-            sendSocket = new DatagramSocket();
-            receiveSocket = new DatagramSocket(host.port);
-        }
-        catch (SocketException e) {
-            /*TODO: заполнить обработку ошибки сокета*/
-        }
-        /*Если получается успешно подключиться, начинаем удаленный сеанс*/
-        if(Connect())
-        {
-            global.mainHandler.sendEmptyMessage(1);
-
-            while(true);
-        }
-        sendSocket.close();
-    }
-
-    private Boolean Connect()
-    {
+    private Boolean Connect() {
         int step=0;
         while(true) {
             switch (step) {
                 //INIT
                 case 0:
-                /*Шлем пакет инициализации*/
+                    /*Шлем пакет инициализации*/
                     DataSet initPack = new DataSet(DataSet.ConnectionCommands.INIT);
                     initPack.add(username);
                     initPack.add(device);
@@ -141,45 +153,45 @@ public class RemoteConnection extends Thread {
                 //PASSWORD/EXIT
                 case 1:
                     DataSet passPack = receive();
-                /*Получили запрос пароля*/
+                        /*Получили запрос пароля*/
                     if (passPack.command == DataSet.ConnectionCommands.PASSWORD) {
-                    /*Открываем диалог в главном потоке*/
+                            /*Открываем диалог в главном потоке*/
                         parent.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 parent.showDialog(PASSWORD_DIALOG_ID);
                             }
                         });
-                    /*Ждем, пока пользователь не введет пароль/выйдет из диалога*/
+                            /*Ждем, пока пользователь не введет пароль/выйдет из диалога*/
                         while (global.getCommand() == DataSet.ConnectionCommands.NONE)
                             ;
-                    /*Проверяем команду*/
+                            /*Проверяем команду*/
                         switch (global.getCommand()) {
                             case PASSWORD:
-                                /*Отправляем серверу пароль*/
+                                    /*Отправляем серверу пароль*/
                                 passPack = new DataSet(DataSet.ConnectionCommands.PASSWORD);
                                 passPack.add(global.getPassword());
                                 send(passPack);
                                 step++;
                                 break;
                             case EXIT:
-                                /*Отправляем серверу команду EXIT*/
+                                    /*Отправляем серверу команду EXIT*/
                                 passPack = new DataSet(DataSet.ConnectionCommands.EXIT);
                                 send(passPack);
                                 return false;
                         }
                     }
-                /*Получили другую команду (CONNECT)*/
+                        /*Получили другую команду (CONNECT)*/
                     else {
                         step++;
                     }
                     break;
-                /*CONNECT/EXIT*/
+                    /*CONNECT/EXIT*/
                 case 2:
                     DataSet connectPack = receive();
                     if(connectPack.command==DataSet.ConnectionCommands.CONNECT) {
-                        this.host.username = connectPack.variables.get(0);
-                        this.host.device = connectPack.variables.get(1);
+                        host.username = connectPack.variables.get(0);
+                        host.device = connectPack.variables.get(1);
                         connectPack = new DataSet(DataSet.ConnectionCommands.CONNECT);
                         send(connectPack);
                         step++;
@@ -189,7 +201,7 @@ public class RemoteConnection extends Thread {
                         global.mainHandler.sendEmptyMessage(0);
                         return false;
                     }
-                /*Если инициализация прошла успешно, возвращаем true*/
+                    /*Если инициализация прошла успешно, возвращаем true*/
                 case 3:
                     return true;
             }

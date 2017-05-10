@@ -18,6 +18,10 @@ import android.view.Window;
 public class RemoteDesktopActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    final Global global = Global.getInstance();
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +40,9 @@ public class RemoteDesktopActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        global.remoteConnection.setParent(this);
+
     }
 
     @Override

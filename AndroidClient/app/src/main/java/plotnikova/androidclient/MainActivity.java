@@ -96,9 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void connectButton_onClick(View v)
     {
-        if(connection!=null) {
+        if(global.remoteConnection!=null) {
             /*TODO: реализовать повторное подключение без ошибки*/
-            connection = null;
+            global.remoteConnection.stopConnection();
+            global.remoteConnection = null;
         }
         else {
             /*Разрешаем работу с сетью с основного потока*/

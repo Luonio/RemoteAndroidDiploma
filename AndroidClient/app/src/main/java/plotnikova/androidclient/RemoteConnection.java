@@ -104,8 +104,17 @@ public class RemoteConnection {
                 if(Connect()){
                     global.mainHandler.sendEmptyMessage(1);
                 }
+                else {
+                    stopConnection();
+                }
             }
         });
+    }
+
+    public void stopConnection(){
+        service.shutdown();
+        sendSocket.close();
+        receiveSocket.close();
     }
 
     /*Отправка набора данных на удаленный адрес*/

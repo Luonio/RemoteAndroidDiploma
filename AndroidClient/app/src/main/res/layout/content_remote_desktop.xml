@@ -2,22 +2,16 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="plotnikova.androidclient.FullscreenActivity">
+    android:layout_height="match_parent">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
 
-    <ImageView
+    <view class="plotnikova.androidclient.RemoteScreen"
         android:id="@+id/screenContent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
+        android:layout_height="match_parent" />
 
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->

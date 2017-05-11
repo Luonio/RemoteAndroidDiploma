@@ -1,9 +1,13 @@
 package plotnikova.androidclient;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.AttributeSet;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+
+import java.util.ArrayList;
 
 public class RemoteDesktopActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -27,7 +33,6 @@ public class RemoteDesktopActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         // Получаем сообщение из объекта intent
         Intent intent = getIntent();
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_remote_desktop);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -42,7 +47,7 @@ public class RemoteDesktopActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         global.remoteConnection.setParent(this);
-
+        global.screenActions.setView((RemoteScreen) findViewById(R.id.screenContent));
     }
 
     @Override

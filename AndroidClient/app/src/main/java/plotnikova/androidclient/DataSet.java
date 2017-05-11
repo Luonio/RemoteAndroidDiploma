@@ -15,7 +15,9 @@ public class DataSet {
         CONNECT,
         DECLINE,
         EXIT,
-        ERROR
+        ERROR,
+        SCREEN,
+        SCREENINFO
     }
 
     /*Получаемая/передаваемая команда*/
@@ -83,6 +85,10 @@ public class DataSet {
                 return ConnectionCommands.EXIT;
             case "0x06":
                 return ConnectionCommands.ERROR;
+            case "0x07":
+                return ConnectionCommands.SCREEN;
+            case "0x08":
+                return ConnectionCommands.SCREENINFO;
             default:
                 return ConnectionCommands.NONE;
         }
@@ -105,6 +111,10 @@ public class DataSet {
                 return "0x05\\";
             case ERROR:
                 return "0x06\\";
+            case SCREEN:
+                return "0x07\\";
+            case SCREENINFO:
+                return "0x08\\";
             default:
                 return "0x00\\";
         }

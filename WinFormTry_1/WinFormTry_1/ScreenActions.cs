@@ -154,13 +154,15 @@ namespace WinFormTry_1
               - размер части снимка экрана*/
             DataSet screenInfo = new DataSet(DataSet.ConnectionCommands.SCREENINFO);
             screenInfo.Add(partsCount);
+            screenInfo.Add(rows);
+            screenInfo.Add(cols);
             screenInfo.Add(capture.Width);
             screenInfo.Add(capture.Height);
             screenInfo.Add(partSize.Width);
             screenInfo.Add(partSize.Height);
             lock (sendQueue)
                 sendQueue.Enqueue(screenInfo);
-            Thread.Sleep(5000);
+            Thread.Sleep(100);
             MakeScreenshot();
             CheckAll();
             while (true)

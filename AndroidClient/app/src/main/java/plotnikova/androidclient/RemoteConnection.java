@@ -103,6 +103,21 @@ public class RemoteConnection {
                 }
                 if(Connect()){
                     global.mainHandler.sendEmptyMessage(1);
+                    global.screenActions.startScreenActions();
+                    /*Читаем данные*/
+                    service.submit(new Runnable(){
+                        @Override
+                        public void run(){
+                            read();
+                        }
+                    });
+                    /*Отправляем данные*/
+                    service.submit(new Runnable(){
+                        @Override
+                        public void run(){
+                            write();
+                        }
+                    });
                 }
                 else {
                     stopConnection();
@@ -111,6 +126,7 @@ public class RemoteConnection {
         });
     }
 
+    /*Закрываем сокеты и прекращаем работу executorService'a*/
     public void stopConnection(){
         service.shutdown();
         sendSocket.close();
@@ -144,6 +160,28 @@ public class RemoteConnection {
             /*TODO: добавить обработчик*/
         }
         return null;
+    }
+
+    /*Постоянное чтение данных*/
+    private void read(){
+        while(true) {
+            DataSet result = receive();
+            /*Блокируем очередь, чтобы не возникало ошибок при ее заполнении*/
+            synchronized (global.screenActions.receiveQueue) {
+                global.screenActions.receiveQueue.offer(result);
+            }
+        }
+    }
+
+    /*Постоянная запись данных*/
+    private void write(){
+        while(true) {
+            /*Если очередь не пуста*/
+            if(global.screenActions.sendQueue.size()!=0)
+                synchronized (global.screenActions.sendQueue) {
+                    send(global.screenActions.sendQueue.poll());
+                }
+        }
     }
 
     private Boolean Connect() {

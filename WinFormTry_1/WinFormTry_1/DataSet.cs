@@ -108,6 +108,10 @@ namespace WinFormTry_1
                     return ConnectionCommands.EXIT;
                 case "0x06":
                     return ConnectionCommands.ERROR;
+                case "0x07":
+                    return ConnectionCommands.SCREEN;
+                case "0x08":
+                    return ConnectionCommands.SCREENINFO;
                 default:
                     return ConnectionCommands.NONE;
             }
@@ -130,6 +134,10 @@ namespace WinFormTry_1
                     return "0x05\\";
                 case ConnectionCommands.ERROR:
                     return "0x06\\";
+                case ConnectionCommands.SCREEN:
+                    return "0x07\\";
+                case ConnectionCommands.SCREENINFO:
+                    return "0x08\\";
                 default:
                     return "0x00\\";
             }

@@ -94,11 +94,10 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
             while(drawingBuffer==null);
             Canvas canvas;
             while(running){
-                canvas=null;
-                try{
-                    canvas = surfaceHolder.lockCanvas(null);
-                    if(canvas==null)
-                        continue;
+                /*Если еще нет доступа к канвасу, переходим к следующей итерации*/
+                if(!surfaceHolder.getSurface().isValid())
+                    continue;
+                    canvas = surfaceHolder.lockCanvas();
                     canvas.drawColor(Color.RED);
                     /*Перебираем пришедшие части экрана и рисуем новые*/
                 /*for (ScreenActions.ScreenPart part: drawingBuffer) {
@@ -108,11 +107,8 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
                         part.setChanged(false);
                     }
                 }*/
-                }
-                finally{
-                    if (canvas != null) {
+                if (canvas != null) {
                         surfaceHolder.unlockCanvasAndPost(canvas);
-                    }
                 }
             }
         }

@@ -7,6 +7,7 @@ import android.view.SurfaceView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
@@ -60,10 +61,13 @@ public class ScreenActions {
     /*Установка SurfaceView, на которой будем рисовать*/
     public void setView(RemoteScreen v){
         this.view = v;
+        view.setDrawingBuffer(this.screen);
     }
 
     /*Начинаем работать с экраном*/
     public void startScreenActions(){
+        /*Ждем инициализации вьюхи*/
+        while(view==null);
         /*Выполняем команды, пришедшие с сервера*/
         service.scheduleWithFixedDelay(new Runnable() {
             @Override
@@ -87,7 +91,6 @@ public class ScreenActions {
                         partWidth = Integer.decode(packet.variables.get(5));
                         partHeight = Integer.decode(packet.variables.get(6));
                         actionsAllowed = true;
-                        view.setDrawingBuffer(this.screen);
                         break;
                     case SCREEN:
                         if (actionsAllowed) {
@@ -148,7 +151,7 @@ public class ScreenActions {
         * "число_число_число_...._число_число"*/
         public void setImage(String value) {
             byte[] byteImg = bytesFromString(value);
-            this.image = BitmapFactory.decodeByteArray(byteImg,0,byteImg.length);
+            this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
             changed = true;
         }
 
@@ -162,19 +165,11 @@ public class ScreenActions {
 
         /*Получаем массив байтов из строки*/
         private byte[] bytesFromString(String str){
-            String[] stringArray = str.split("_");
-            ByteArrayOutputStream bt = new ByteArrayOutputStream(partsCount);
-            try {
-                for (int i = 0; i < stringArray.length; i++) {
-                    bt.write(stringArray[i].getBytes());
-                }
+            ByteArrayOutputStream bt = new ByteArrayOutputStream();
+            for(int i=0;i<str.length()-1;i+=2){
+                bt.write(Byte.parseByte("0x"+str.substring(i,i+1),16));
             }
-            catch (IOException ex){
-                /*TODO: добавить обработчик*/
-            }
-            finally {
-                return bt.toByteArray();
-            }
+            return bt.toByteArray();
         }
 
         @Override

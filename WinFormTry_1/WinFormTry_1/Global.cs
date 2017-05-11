@@ -33,7 +33,7 @@ namespace WinFormTry_1
         public static Color itemTextColor = Color.FromArgb(230, 255, 255);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
-        public static String hostIP = "192.168.1.39";
+        public static String hostIP = "192.168.0.105";
         public static int screenPort = 65000;
         public static int communicationPort = 65001;
         public static String username;
@@ -54,8 +54,9 @@ namespace WinFormTry_1
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < array.Length; i++)
             {
+                if (array[i] < 0x10)
+                    result.Append("0");
                 result.Append(array[i].ToString("X"));
-                result.Append('_');
             }
             return result.ToString();
         }

@@ -234,9 +234,9 @@ namespace WinFormTry_1
         /*Размер части*/
         Size size;
         /*Изображение*/
-        public Bitmap image;
+        public volatile Bitmap image;
         /*Предыдущее состояние картинки*/
-        private Bitmap prevImage;
+        private volatile Bitmap prevImage;
 
         /*Отслеживает изменения на экране*/
         public bool changed;
@@ -267,25 +267,33 @@ namespace WinFormTry_1
         {
             image = new Bitmap(screen.Clone(new Rectangle(location, size), screen.PixelFormat));
             /*Сравниваем 2 изображения. Если они разные, то заносим часть в очередь*/
-            if (prevImage != null)
-                changed = image.Compare(prevImage);
-            prevImage = new Bitmap(image);
+            lock (image)
+            {
+                if (prevImage != null)
+                    changed = image.Compare(prevImage);
+                prevImage = new Bitmap(image);
+            }
         }
 
 
         /*Упаковывает изображение части экрана в DataSet*/
         public DataSet ToDataSet()
         {
-            DataSet data = new DataSet(DataSet.ConnectionCommands.SCREEN);
-            data.Add(this.partNumber);
-            data.Add(this.location.X);
-            data.Add(this.location.Y);
+                DataSet data = new DataSet(DataSet.ConnectionCommands.SCREEN);
+                data.Add(this.partNumber);
+                data.Add(this.location.X);
+                data.Add(this.location.Y);
             MemoryStream ms = new MemoryStream();
-            image.Save(ms, ImageFormat.Jpeg);            
-            byte[] buffer = new byte[ms.Length];
-            buffer = ms.GetBuffer();
+            byte[] buffer;
+            lock (ms)
+            {
+                image.Save(ms, ImageFormat.Jpeg);
+                buffer = new byte[ms.Length];
+                buffer = ms.GetBuffer();
+            }
             data.Add(buffer.GetString());
             ms.Dispose();
+
             return data;
         }
 

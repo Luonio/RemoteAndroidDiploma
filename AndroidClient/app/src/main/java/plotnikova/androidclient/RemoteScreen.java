@@ -3,6 +3,7 @@ package plotnikova.androidclient;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -25,22 +26,25 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
     /*------КОНСТРУКТОРЫ------*/
     public RemoteScreen(Context ctx){
         super(ctx);
+        Global.getInstance().screenActions.setView(this);
         getHolder().addCallback(this);
     }
 
     public RemoteScreen(Context context, AttributeSet attrs){
         super(context,attrs);
+        Global.getInstance().screenActions.setView(this);
         getHolder().addCallback(this);
     }
 
     public RemoteScreen(Context context, AttributeSet attrs, int defStyle){
         super(context, attrs, defStyle);
+        Global.getInstance().screenActions.setView(this);
         getHolder().addCallback(this);
     }
 
     /*------МЕТОДЫ------*/
     public void setDrawingBuffer(ArrayList<ScreenActions.ScreenPart> drawingBuffer) {
-        setDrawingBuffer(drawingBuffer);
+        this.drawingBuffer = drawingBuffer;
     }
 
     @Override
@@ -52,12 +56,6 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
         thread = new DrawThread(holder);
         thread.setRunning(true);
         thread.start();
-    }
-
-    @Override
-    public void onDraw(Canvas c) {
-        Log.d(TAG , "onDraw" );
-        c.drawColor(Color.MAGENTA);
     }
 
     @Override
@@ -98,15 +96,17 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
                 if(!surfaceHolder.getSurface().isValid())
                     continue;
                     canvas = surfaceHolder.lockCanvas();
-                    canvas.drawColor(Color.RED);
                     /*Перебираем пришедшие части экрана и рисуем новые*/
-                /*for (ScreenActions.ScreenPart part: drawingBuffer) {
-                    if(part.isChanged()) {
-                        canvas.drawBitmap(part.image, part.location.x,
-                                part.location.y, new Paint(Paint.ANTI_ALIAS_FLAG));
-                        part.setChanged(false);
+                    for (ScreenActions.ScreenPart part: drawingBuffer) {
+                        if(part.isChanged()) {
+                            /*Если в части уже прогрузилась картинка*/
+                            if(part.image!=null) {
+                                canvas.drawBitmap(part.image, part.location.x,
+                                        part.location.y, new Paint(Paint.ANTI_ALIAS_FLAG));
+                                part.setChanged(false);
+                            }
                     }
-                }*/
+                }
                 if (canvas != null) {
                         surfaceHolder.unlockCanvasAndPost(canvas);
                 }

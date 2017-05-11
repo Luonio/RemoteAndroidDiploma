@@ -141,7 +141,6 @@ public class ScreenActions {
             this.height = height;
             /*Получаем массив байтов с изображением*/
             setImage(packet.variables.get(3));
-            changed = true;
         }
 
         /*------МЕТОДЫ------*/

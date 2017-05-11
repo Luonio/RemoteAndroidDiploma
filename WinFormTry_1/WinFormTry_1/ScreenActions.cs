@@ -235,6 +235,8 @@ namespace WinFormTry_1
         Size size;
         /*Изображение*/
         public Bitmap image;
+        /*Предыдущее состояние картинки*/
+        private Bitmap prevImage;
 
         /*Отслеживает изменения на экране*/
         public bool changed;
@@ -264,6 +266,10 @@ namespace WinFormTry_1
         public void SetImage(Bitmap screen)
         {
             image = new Bitmap(screen.Clone(new Rectangle(location, size), screen.PixelFormat));
+            /*Сравниваем 2 изображения. Если они разные, то заносим часть в очередь*/
+            if (prevImage != null)
+                changed = image.Compare(prevImage);
+            prevImage = new Bitmap(image);
         }
 
 

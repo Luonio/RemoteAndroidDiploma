@@ -236,9 +236,13 @@ namespace WinFormTry_1
         {
             while (true)
             {
-                DataSet result = ReadPackage(client);
-                lock (screenActions.receiveQueue)
-                    screenActions.receiveQueue.Enqueue(result);
+                while (remoteListener.Available != 0)
+                {
+                    DataSet result = ReadPackage(client);
+                    lock (screenActions.receiveQueue)
+                        screenActions.receiveQueue.Enqueue(result);
+                }
+                Thread.Sleep(40);
             }
         }
 
@@ -247,9 +251,13 @@ namespace WinFormTry_1
             while(true)
             {
                 /*Если в clientActions есть элементы, отправляем их клиенту*/
-                if (screenActions.sendQueue.Count != 0)
-                    lock(screenActions.sendQueue)
+                while (screenActions.sendQueue.Count != 0)
+                {
+                    lock (screenActions.sendQueue)
                         Send(screenActions.sendQueue.Dequeue());
+                    Thread.Sleep(2);
+                }
+                Thread.Sleep(40);
             }
         }
 

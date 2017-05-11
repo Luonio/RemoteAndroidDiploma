@@ -1,10 +1,12 @@
 package plotnikova.androidclient;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -43,11 +45,17 @@ public class RemoteDesktopActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        /*Добавляем фрагмент с рисовалкой*/
+        android.app.FragmentTransaction trans;
+        trans = getFragmentManager().beginTransaction();
+        trans.add(R.id.screenFrame, new ScreenFragment());
+        trans.commit();
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         global.remoteConnection.setParent(this);
-        global.screenActions.setView((RemoteScreen) findViewById(R.id.screenContent));
+
     }
 
     @Override

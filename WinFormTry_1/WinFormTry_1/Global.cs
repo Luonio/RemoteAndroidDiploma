@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.IO;
+using System.Drawing.Imaging;
 
 namespace WinFormTry_1
 {
@@ -56,6 +58,22 @@ namespace WinFormTry_1
                 result.Append('_');
             }
             return result.ToString();
+        }
+
+        /*Возвращает true, если картинки идентичны*/
+        public static bool Compare (this Bitmap bmp, Bitmap anotherBmp)
+        {
+            MemoryStream ms = new MemoryStream();
+            bmp.Save(ms,ImageFormat.Jpeg);
+            byte[] bt1 = ms.GetBuffer();
+            anotherBmp.Save(ms, ImageFormat.Jpeg);
+            byte[] bt2 = ms.GetBuffer();
+            if (bt1.Length != bt2.Length)
+                return false;
+            for (int i = 0; i < bt1.Length; i++)
+                if (bt1[i] != bt2[i])
+                    return false;
+            return true;
         }
         #endregion
     }

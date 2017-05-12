@@ -29,7 +29,7 @@ namespace WinFormTry_1
 
         #region Части экрана
         /*Список частей экрана*/
-        private List<ScreenPart> screen;
+        public List<ScreenPart> screen;
         /*Общее количество частей*/
         private int partsCount;
         /*Количество частей по-вертикали*/
@@ -69,10 +69,10 @@ namespace WinFormTry_1
             MemoryStream ms = new MemoryStream();
             capture.Save(ms, ImageFormat.Jpeg);
             int len = Convert.ToInt32(ms.Length);
-            /*Получаем partsCount частей по 8кб*/
-            partsCount = len / 8192;
+            /*Получаем partsCount частей по 1кб*/
+            partsCount = len / 1024;
             /*Увеличиваем число частей в 10 раз, так как размер каждой части может меняться*/
-            partsCount *= 10;
+            partsCount *= 2;
             /*Пока не получим не простое число, увеличиваем его на единицу*/
             while (IsSimple(partsCount))
                 partsCount++;
@@ -184,7 +184,9 @@ namespace WinFormTry_1
                     currentAction = receiveQueue.Dequeue();
                 switch (currentAction.command)
                 {
-                    //TODO: сделать переключатель действий для первой команды в очереди
+                    case DataSet.ConnectionCommands.SCREEN:
+                        screen.Check(Convert.ToInt32(currentAction.variables[0]));
+                        break;
                 }
             }
         }
@@ -224,7 +226,7 @@ namespace WinFormTry_1
     }
 
     /*Отдельно обрабатываемая часть экрана*/
-    class ScreenPart
+    public class ScreenPart
     {
         #region Поля
         /*Номер части*/
@@ -287,7 +289,10 @@ namespace WinFormTry_1
             byte[] buffer;
             lock (ms)
             {
-                image.Save(ms, ImageFormat.Jpeg);
+                lock (image)
+                {
+                    image.Save(ms, ImageFormat.Jpeg);
+                }
                 buffer = new byte[ms.Length];
                 buffer = ms.GetBuffer();
             }

@@ -2,12 +2,12 @@
 <resources>
 
     <style name="DarkBlue" parent="Theme.AppCompat.Light.NoActionBar">
-        <!--<item name="android:colorBackground">@color/dbBackgroundPrimary</item>
+        <item name="android:colorBackground">@color/dbBackgroundPrimary</item>
         <item name="android:textColor">@color/dbTextColorPrimary</item>
         <item name="colorPrimary">@color/dbColorPrimary</item>
         <item name="android:statusBarColor">@color/dbStatusBarColor</item>
         <item name="android:textSize">@dimen/baseTextSize</item>
-        <item name="colorAccent">@color/dbColorAccent</item>-->
+        <item name="colorAccent">@color/dbColorAccent</item>
     </style>
 
     <style name="DarkBlue.View">
@@ -28,15 +28,15 @@
     </style>
 
     <style name="FullscreenTheme" parent="DarkBlue">
-        <!--<item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
-        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>-->
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
     </style>
 
     <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <!--<item name="android:background">@color/black_overlay</item>-->
+        <item name="android:background">@color/black_overlay</item>
     </style>
 
     <style name="DarkBlue.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

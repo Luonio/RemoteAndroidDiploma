@@ -75,7 +75,6 @@ public class ScreenActions {
                 executeCommand();
             }
         },0,1, TimeUnit.MILLISECONDS);
-
     }
 
     /*Выполняем команды из очереди, если она не пуста*/
@@ -91,6 +90,20 @@ public class ScreenActions {
                         partWidth = Integer.decode(packet.variables.get(5));
                         partHeight = Integer.decode(packet.variables.get(6));
                         actionsAllowed = true;
+                        /*Ждем, пока не загрузятся все части изображения*/
+                        this.service.schedule(new Runnable() {
+                            @Override
+                            public void run(){
+                                while(!imageIsReady())
+                                    try {
+                                        this.wait(500);
+                                    }
+                                    catch (InterruptedException ex){
+                                        continue;
+                                    }
+                                view.setImageReady(true);
+                                }
+                        },5,TimeUnit.SECONDS);
                         break;
                     case SCREEN:
                         if (actionsAllowed) {
@@ -119,6 +132,19 @@ public class ScreenActions {
                 return true;
         }
         return false;
+    }
+
+    private boolean imageIsReady(){
+        boolean result = true;
+        for(int i=0;i<partsCount;i++){
+            if(!contains(i)) {
+                DataSet askPart = new DataSet(DataSet.ConnectionCommands.SCREEN);
+                askPart.add(i);
+                sendQueue.offer(askPart);
+                result = false;
+            }
+        }
+        return result;
     }
 
     class ScreenPart implements Comparable<ScreenPart> {
@@ -166,10 +192,71 @@ public class ScreenActions {
         /*Получаем массив байтов из строки*/
         private byte[] bytesFromString(String str){
             ByteArrayOutputStream bt = new ByteArrayOutputStream();
+            StringBuilder builder = new StringBuilder();
             for(int i=0;i<str.length()-1;i+=2){
-                bt.write(Byte.parseByte("0x"+str.substring(i,i+1),16));
+                builder.append(str.charAt(i));
+                builder.append(str.charAt(i+1));
+                bt.write(getByte(builder.toString()));
+                builder.delete(0,1);
             }
             return bt.toByteArray();
+        }
+
+        /*Получаем байт из строки "ХХ"*/
+        private byte getByte(String str)
+        {
+            int result = 0;
+            for (int i=0;i<str.length();i++) {
+                result*=0x10;
+                switch (str.charAt(i)) {
+                    case '1':
+                        result+=001;
+                        break;
+                    case '2':
+                        result+=0x02;
+                        break;
+                    case '3':
+                        result+=0x03;
+                        break;
+                    case '4':
+                        result+=0x04;
+                        break;
+                    case '5':
+                        result+=005;
+                        break;
+                    case '6':
+                        result+=0x06;
+                        break;
+                    case '7':
+                        result+=0x07;
+                        break;
+                    case '8':
+                        result+=0x08;
+                        break;
+                    case 'A':
+                        result+=0x0A;
+                        break;
+                    case 'B':
+                        result+=0x0B;
+                        break;
+                    case 'C':
+                        result+=0x0C;
+                        break;
+                    case 'D':
+                        result+=0x0D;
+                        break;
+                    case 'E':
+                        result+=0x0E;
+                        break;
+                    case 'F':
+                        result+=0x0F;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return (byte)result;
+
         }
 
         @Override

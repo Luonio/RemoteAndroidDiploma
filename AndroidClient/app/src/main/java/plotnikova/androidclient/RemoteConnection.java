@@ -150,7 +150,7 @@ public class RemoteConnection {
     /*Получение набора данных с удаленного адреса*/
     public DataSet receive()    {
         try {
-            byte[] receiveData = new byte[1024];
+            byte[] receiveData = new byte[8192];
             DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length, host.ip, host.port);
             receiveSocket.receive(packet);
             String msg = new String(packet.getData(), packet.getOffset(), packet.getLength());

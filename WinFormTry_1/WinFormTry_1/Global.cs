@@ -33,7 +33,7 @@ namespace WinFormTry_1
         public static Color itemTextColor = Color.FromArgb(230, 255, 255);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
-        public static String hostIP = "192.168.0.105";
+        public static String hostIP = "192.168.43.107";
         public static int screenPort = 65000;
         public static int communicationPort = 65001;
         public static String username;
@@ -75,6 +75,21 @@ namespace WinFormTry_1
                 if (bt1[i] != bt2[i])
                     return false;
             return true;
+        }
+
+        /*Отмечаем элемент для пересылки*/
+        public static void Check(this List<ScreenPart> list, int number)
+        {
+            list.FindPart(number).changed = true;
+        }
+
+        /*Находим в списке элемент с указанным номером*/
+        public static ScreenPart FindPart(this List<ScreenPart> list, int number)
+        {
+            foreach (ScreenPart part in list)
+                if (part.partNumber == number)
+                    return part;
+            return null;
         }
         #endregion
     }

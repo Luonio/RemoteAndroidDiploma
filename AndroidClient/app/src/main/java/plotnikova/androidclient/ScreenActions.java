@@ -178,6 +178,7 @@ public class ScreenActions {
         public void setImage(String value) {
             byte[] byteImg = bytesFromString(value);
             this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
+            this.image = Bitmap.cre
             changed = true;
         }
 

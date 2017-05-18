@@ -163,13 +163,12 @@ namespace WinFormTry_1
             lock (sendQueue)
                 sendQueue.Enqueue(screenInfo);
             Thread.Sleep(100);
-            MakeScreenshot();
-            CheckAll();
             while (true)
             {
                 /*Делаем снимок экрана, чтобы отправлялась обновленная картинка*/
                 MakeScreenshot();
-                Thread.Sleep(Global.connectionInterval);                
+                Thread.Sleep(Global.connectionInterval);
+                Task.Factory.StartNew(ExecuteActionsAsync);
             }
         }
         #endregion

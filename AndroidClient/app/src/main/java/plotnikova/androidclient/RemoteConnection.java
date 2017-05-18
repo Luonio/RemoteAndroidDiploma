@@ -17,6 +17,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -40,7 +42,7 @@ public class RemoteConnection {
     DatagramSocket sendSocket;
     DatagramSocket receiveSocket;
 
-    ExecutorService service;
+    ScheduledExecutorService service;
 
     final Global global = Global.getInstance();
 
@@ -90,7 +92,7 @@ public class RemoteConnection {
 
     /*Устанавливаем соединение*/
     public void startConnection(){
-        this.service = Executors.newCachedThreadPool();
+        this.service = Executors.newScheduledThreadPool(3);
         service.submit(new Runnable(){
             @Override
             public void run(){
@@ -105,19 +107,19 @@ public class RemoteConnection {
                     global.mainHandler.sendEmptyMessage(1);
                     global.screenActions.startScreenActions();
                     /*Читаем данные*/
-                    service.submit(new Runnable(){
+                    service.scheduleWithFixedDelay(new Runnable(){
                         @Override
                         public void run(){
                             read();
                         }
-                    });
-                    /*Отправляем данные*/
-                    service.submit(new Runnable(){
+                    },0,5, TimeUnit.MILLISECONDS);
+                    /*Отправляем данные, если очередь не пуста*/
+                    service.scheduleWithFixedDelay(new Runnable(){
                         @Override
                         public void run(){
                             write();
                         }
-                    });
+                    },0,5,TimeUnit.MILLISECONDS);
                 }
                 else {
                     stopConnection();
@@ -164,24 +166,20 @@ public class RemoteConnection {
 
     /*Постоянное чтение данных*/
     private void read(){
-        while(true) {
-            DataSet result = receive();
-            /*Блокируем очередь, чтобы не возникало ошибок при ее заполнении*/
-            synchronized (global.screenActions.receiveQueue) {
-                global.screenActions.receiveQueue.offer(result);
-            }
+        DataSet result = receive();
+        /*Блокируем очередь, чтобы не возникало ошибок при ее заполнении*/
+        synchronized (global.screenActions.receiveQueue) {
+            global.screenActions.receiveQueue.offer(result);
         }
     }
 
     /*Постоянная запись данных*/
     private void write(){
-        while(true) {
-            /*Если очередь не пуста*/
-            if(global.screenActions.sendQueue.size()!=0)
-                synchronized (global.screenActions.sendQueue) {
-                    send(global.screenActions.sendQueue.poll());
-                }
-        }
+        /*Если очередь не пуста*/
+        if(global.screenActions.sendQueue.size()!=0)
+            synchronized (global.screenActions.sendQueue) {
+                send(global.screenActions.sendQueue.poll());
+            }
     }
 
     private Boolean Connect() {

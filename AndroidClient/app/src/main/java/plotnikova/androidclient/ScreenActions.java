@@ -2,15 +2,22 @@ package plotnikova.androidclient;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Point;
+import android.media.ImageReader;
 import android.view.SurfaceView;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,6 +41,8 @@ public class ScreenActions {
     private ArrayList<ScreenPart> screen;
     /*Общее количество частей*/
     private int partsCount;
+    /*Количество загруженных частей*/
+    protected int downloadedParts;
     /*Количество частей по-вертикали*/
     private int rows;
     /*Количество частей по-горизонтали*/
@@ -51,6 +60,7 @@ public class ScreenActions {
         sendQueue = new ConcurrentLinkedQueue<>();
         receiveQueue = new ConcurrentLinkedQueue<>();
         partsCount = 0;
+        downloadedParts = 0;
         rows = 0;
         cols = 0;
         screen = new ArrayList<>();
@@ -90,20 +100,6 @@ public class ScreenActions {
                         partWidth = Integer.decode(packet.variables.get(5));
                         partHeight = Integer.decode(packet.variables.get(6));
                         actionsAllowed = true;
-                        /*Ждем, пока не загрузятся все части изображения*/
-                        this.service.schedule(new Runnable() {
-                            @Override
-                            public void run(){
-                                while(!imageIsReady())
-                                    try {
-                                        this.wait(500);
-                                    }
-                                    catch (InterruptedException ex){
-                                        continue;
-                                    }
-                                view.setImageReady(true);
-                                }
-                        },5,TimeUnit.SECONDS);
                         break;
                     case SCREEN:
                         if (actionsAllowed) {
@@ -111,25 +107,36 @@ public class ScreenActions {
                             int partNumber = Integer.decode(packet.variables.get(0));
                             /*Если в списке еще нет элемента с таким номером, добавляем его
                             * и сортируем список*/
-                            if(!contains(partNumber)) {
-                                screen.add(new ScreenPart(packet, partWidth, partHeight));
-                                Collections.sort(screen);
+                            synchronized (screen) {
+                                if (!contains(partNumber)) {
+                                    screen.add(new ScreenPart(packet, partWidth, partHeight));
+                                    downloadedParts++;
+                                    /*Если загрузили все части, выводим их на экран*/
+                                    /*if(downloadedParts==partsCount) {
+                                        Collections.sort(screen);
+                                        view.setImageReady(true);
+                                    }*/
+                                }
+                                /*Иначе просто обновляем картинку*/
+                                else
+                                    screen.get(partNumber).setImage(packet.variables.get(3));
                             }
-                            /*Иначе просто обновляем картинку*/
-                            else
-                                screen.get(partNumber).setImage(packet.variables.get(3));
                         }
                         break;
                 }
+                if(actionsAllowed)
+                    imageIsReady();
             }
         }
     }
 
     /*Проверяет, есть ли в списке частей элемент с указанным номером*/
     private boolean contains(int num){
-        for(ScreenPart part: screen){
-            if(part.partNumber==num)
-                return true;
+        synchronized (screen) {
+            for (ScreenPart part : screen) {
+                if (part.partNumber == num)
+                    return true;
+            }
         }
         return false;
     }
@@ -160,6 +167,8 @@ public class ScreenActions {
 
         private boolean changed;
 
+        private Timer getImageTimer;
+
         /*------КОНСТРУКТОРЫ------*/
         /*Получаем изображение из пакета*/
         public ScreenPart(DataSet packet, int width, int height){
@@ -172,13 +181,40 @@ public class ScreenActions {
             setImage(packet.variables.get(3));
         }
 
+        /*Создаем объект с указанными размерами и номером*/
+        public ScreenPart(int number, int width, int height){
+            this.partNumber = number;
+            this.width = width;
+            this.height = height;
+            getImageTimer = new Timer(true);
+            /*роверяем изображение*/
+            TimerTask getImageTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if(ScreenPart.this.image==null) {
+                        DataSet askPart = new DataSet(DataSet.ConnectionCommands.SCREEN);
+                        askPart.add(partNumber);
+                        sendQueue.offer(askPart);
+                    }
+                    else {
+                        downloadedParts++;
+                        getImageTimer.cancel();
+                    }
+                }
+            };
+            getImageTimer.schedule(getImageTask,0,10);
+        }
+
         /*------МЕТОДЫ------*/
         /*Устанавливает изображение части, декодированнное из строки вида
         * "число_число_число_...._число_число"*/
-        public void setImage(String value) {
-            byte[] byteImg = bytesFromString(value);
-            this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
-            changed = true;
+        public void setImage(String value, Point loc) {
+            synchronized (this) {
+                this.location = loc;
+                byte[] byteImg = bytesFromString(value);
+                this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
+                changed = true;
+            }
         }
 
         public void setChanged(boolean changed){
@@ -193,11 +229,9 @@ public class ScreenActions {
         private byte[] bytesFromString(String str){
             ByteArrayOutputStream bt = new ByteArrayOutputStream();
             StringBuilder builder = new StringBuilder();
-            for(int i=0;i<str.length()-1;i+=2){
-                builder.append(str.charAt(i));
-                builder.append(str.charAt(i+1));
-                bt.write(getByte(builder.toString()));
-                builder.delete(0,1);
+            String[] strArray = str.split("-");
+            for(int i=0;i<strArray.length;i++){
+                bt.write(getByte(strArray[i]));
             }
             return bt.toByteArray();
         }
@@ -210,7 +244,7 @@ public class ScreenActions {
                 result*=0x10;
                 switch (str.charAt(i)) {
                     case '1':
-                        result+=001;
+                        result+=0x01;
                         break;
                     case '2':
                         result+=0x02;
@@ -222,7 +256,7 @@ public class ScreenActions {
                         result+=0x04;
                         break;
                     case '5':
-                        result+=005;
+                        result+=0x05;
                         break;
                     case '6':
                         result+=0x06;
@@ -232,6 +266,9 @@ public class ScreenActions {
                         break;
                     case '8':
                         result+=0x08;
+                        break;
+                    case '9':
+                        result+=0x09;
                         break;
                     case 'A':
                         result+=0x0A;

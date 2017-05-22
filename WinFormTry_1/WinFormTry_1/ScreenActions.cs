@@ -71,13 +71,12 @@ namespace WinFormTry_1
             int len = Convert.ToInt32(ms.Length);
             /*Получаем partsCount частей по 1кб*/
             partsCount = len / 1024;
-            /*Увеличиваем число частей в 10 раз, так как размер каждой части может меняться*/
-            partsCount *= 2;
-            /*Пока не получим не простое число, увеличиваем его на единицу*/
-            while (IsSimple(partsCount))
-                partsCount++;
-            /*Получаем делители числа*/
-            GetMultipliers(partsCount, ref cols, ref rows);
+            /*Увеличиваем число частей в 2 раза, так как размер каждой части может меняться*/
+            //partsCount *= 2;
+            /*Получаем число, из которого можно извлечь квадратный корень*/
+            partsCount = GetSquareNumber(partsCount);
+            /*Получаем строки и столбцы*/
+            cols = rows = Convert.ToInt32(Math.Sqrt(partsCount));
             /*Получаем размер частей*/
             partSize = new Size(capture.Width / cols, capture.Height / rows);
             /*Инициализируем список частей снимка экрана*/
@@ -163,13 +162,12 @@ namespace WinFormTry_1
             lock (sendQueue)
                 sendQueue.Enqueue(screenInfo);
             Thread.Sleep(100);
-            MakeScreenshot();
-            CheckAll();
             while (true)
             {
                 /*Делаем снимок экрана, чтобы отправлялась обновленная картинка*/
                 MakeScreenshot();
-                Thread.Sleep(Global.connectionInterval);                
+                Thread.Sleep(Global.connectionInterval);
+                Task.Factory.StartNew(ExecuteActionsAsync);
             }
         }
         #endregion
@@ -192,33 +190,18 @@ namespace WinFormTry_1
         }
 
         #region Математика
-        /*Возвращает true, если число простое
-          w, h - числа, при умножении которых можно получить n
-          если n - простое число, w=h=0*/
-        private static bool IsSimple(int n)
+        /*Возвращает число, из которого можно извлечь корень,
+          ближайшее к указанному*/
+        private static int GetSquareNumber(int n)
         {
-            for (int i = 2; i < n / 2; i++)
-                if (n % i == 0)
-                    return false;
-            return true;
-        }
-
-        /*Находит наиболее близкие по значению делители числа n*/
-        private static void GetMultipliers(int n, ref int a, ref int b)
-        {
-            a = Convert.ToInt32(Math.Sqrt(n));
-            b = a;
-            while (!IsDivider(n, b))
-                b--;
-            a = n / b;
-        }
-
-        /*Возвращает true, если а является делителем числа n*/
-        private static bool IsDivider(int n, int a)
-        {
-            if (n % a == 0)
-                return true;
-            return false;
+            double sqrt = Math.Sqrt(n);
+            int intSqrt = Convert.ToInt32(sqrt);
+            if(sqrt-intSqrt!=0)
+            {
+                intSqrt += 1;
+                return intSqrt * intSqrt;
+            }
+            return intSqrt * intSqrt;
         }
         #endregion
 
@@ -296,7 +279,7 @@ namespace WinFormTry_1
                 buffer = new byte[ms.Length];
                 buffer = ms.GetBuffer();
             }
-            data.Add(buffer.GetString());
+            data.Add(BitConverter.ToString(buffer));
             ms.Dispose();
 
             return data;

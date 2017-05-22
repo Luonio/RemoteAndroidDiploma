@@ -1,14 +1,22 @@
 package plotnikova.androidclient;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
@@ -103,20 +111,22 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
                 if(!surfaceHolder.getSurface().isValid())
                     continue;
                     canvas = surfaceHolder.lockCanvas();
-                if(imageReady)
-                    /*Перебираем пришедшие части экрана и рисуем новые*/
-                    for (ScreenActions.ScreenPart part: drawingBuffer) {
-                        if(part.isChanged()) {
+                //if(imageReady)
+                    synchronized (drawingBuffer) {
+                        /*Перебираем пришедшие части экрана и рисуем новые*/
+                        for (ScreenActions.ScreenPart part : drawingBuffer) {
+                            if (part.isChanged()) {
                             /*Если в части уже прогрузилась картинка*/
-                            if(part.image!=null) {
-                                canvas.drawBitmap(part.image, part.location.x,
-                                        part.location.y, new Paint(Paint.ANTI_ALIAS_FLAG));
-                                part.setChanged(false);
+                                if (part.image != null) {
+                                    canvas.drawBitmap(part.image, part.location.x,
+                                            part.location.y, new Paint(Paint.ANTI_ALIAS_FLAG));
+                                    part.setChanged(false);
+                                }
                             }
+                        }
                     }
-                }
-                else
-                    canvas.drawColor(Color.GRAY);
+                /*else
+                    canvas.drawColor(Color.GRAY);*/
                 if (canvas != null) {
                         surfaceHolder.unlockCanvasAndPost(canvas);
                 }

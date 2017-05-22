@@ -30,6 +30,8 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
     private DrawThread drawThread;
     /*Сюда передадим ссылку на массив частей экрана*/
     private ArrayList<ScreenActions.ScreenPart> drawingBuffer;
+    /*Картинка, которую собираем из частей*/
+    private Bitmap screenCapture;
 
     /*Готовность отображения снимка экрана*/
     private boolean imageReady = false;
@@ -60,6 +62,11 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
 
     public void setImageReady(boolean value){
         imageReady = value;
+    }
+
+    /*Для инициализации картинки по размерам*/
+    public void setImageSize(int width, int height){
+        screenCapture = Bitmap.createBitmap(width,height, Bitmap.Config.RGB_565);
     }
 
     @Override
@@ -107,25 +114,33 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
             while(drawingBuffer==null);
             /*Канвас для рисования на вьюхе*/
             Canvas viewCanvas;
+            /*Канвас для рисования на Bitmap'е*/
+            Canvas captureCanvas = new Canvas();
+            captureCanvas.setBitmap(screenCapture);
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            captureCanvas.drawColor(Color.BLACK);
             while(running){
-                /*Если еще нет доступа к канвасу, переходим к следующей итерации*/
-                if(!surfaceHolder.getSurface().isValid())
-                    continue;
-                    viewCanvas = surfaceHolder.lockCanvas();
+                /*-------------Объединяем части в одно изображение--------------*/
                 //if(imageReady)
-                    synchronized (drawingBuffer) {
-                        /*Перебираем пришедшие части экрана и рисуем новые*/
-                        for (ScreenActions.ScreenPart part : drawingBuffer) {
-                            if (part.isChanged()) {
+                synchronized (drawingBuffer) {
+                    /*Перебираем пришедшие части экрана и рисуем новые*/
+                    for (ScreenActions.ScreenPart part : drawingBuffer) {
+                        if (part.isChanged()) {
                             /*Если в части уже прогрузилась картинка*/
-                                if (part.image != null) {
-                                    viewCanvas.drawBitmap(part.image, part.location.x,
-                                            part.location.y, new Paint(Paint.ANTI_ALIAS_FLAG));
-                                    part.setChanged(false);
-                                }
+                            if (part.image != null) {
+                                captureCanvas.drawBitmap(part.image, part.location.x,
+                                        part.location.y, paint);
+                                part.setChanged(false);
                             }
                         }
                     }
+                }
+                /*------------------------Рисуем на вьюхе------------------------*/
+                /*Если еще нет доступа к канвасу, переходим к следующей итерации*/
+                if(!surfaceHolder.getSurface().isValid())
+                    continue;
+                viewCanvas = surfaceHolder.lockCanvas();
+                viewCanvas.drawBitmap(screenCapture,0,0,paint);
                 /*else
                     canvas.drawColor(Color.GRAY);*/
                 if (viewCanvas != null) {

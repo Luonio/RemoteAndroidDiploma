@@ -43,6 +43,9 @@ namespace WinFormTry_1
         /*Поток, выполняющий работу с экраном*/
         private Thread captureThread;
 
+        /*Таймер для отправки всех частей*/
+        System.Timers.Timer sendAllTimer;
+
         #endregion
 
         #region Конструкторы
@@ -53,6 +56,9 @@ namespace WinFormTry_1
             captureThread.IsBackground = true;
             this.sendQueue = new Queue<DataSet>();
             this.receiveQueue = new Queue<DataSet>();
+            /*Заводим таймер пересылки всего изображения на 3с*/
+            sendAllTimer = new System.Timers.Timer(3000);
+            sendAllTimer.Elapsed += SendAllTimer_Elapsed;
         }
         #endregion
 
@@ -129,7 +135,10 @@ namespace WinFormTry_1
         {
             /*Если выполнение потока приостановлено, запускаем его*/
             if (captureThread.ThreadState.HasFlag(ThreadState.Suspended))
+            {
                 captureThread.Resume();
+                sendAllTimer.Start();
+            }
             /*Иначе запускаем новый поток*/
             else
                 captureThread.Start();
@@ -139,6 +148,13 @@ namespace WinFormTry_1
         public void Stop()
         {
             captureThread.Suspend();
+            sendAllTimer.Stop();
+        }
+
+        /*Раз в 3с пересылаем изображение целиком*/
+        private void SendAllTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            CheckAll();
         }
 
         /*Поток для работы с экраном.
@@ -162,6 +178,7 @@ namespace WinFormTry_1
             lock (sendQueue)
                 sendQueue.Enqueue(screenInfo);
             Thread.Sleep(100);
+            sendAllTimer.Start();
             while (true)
             {
                 /*Делаем снимок экрана, чтобы отправлялась обновленная картинка*/

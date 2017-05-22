@@ -105,6 +105,7 @@ public class ScreenActions {
                         /*Ждем, пока не определится вьюха для прорисовки
                         * и передаем ей ссылку на буфер с частями*/
                         while(view==null);
+                        view.setImageSize(partWidth*cols,partHeight*rows);
                         view.setDrawingBuffer(this.screen);
                         actionsAllowed = true;
                         break;

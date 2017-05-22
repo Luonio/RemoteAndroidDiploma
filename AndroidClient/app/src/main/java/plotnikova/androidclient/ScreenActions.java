@@ -63,7 +63,6 @@ public class ScreenActions {
         downloadedParts = 0;
         rows = 0;
         cols = 0;
-        screen = new ArrayList<>();
         service = Executors.newScheduledThreadPool(2);
         actionsAllowed = false;
     }
@@ -71,7 +70,6 @@ public class ScreenActions {
     /*Установка SurfaceView, на которой будем рисовать*/
     public void setView(RemoteScreen v){
         this.view = v;
-        view.setDrawingBuffer(this.screen);
     }
 
     /*Начинаем работать с экраном*/
@@ -99,33 +97,30 @@ public class ScreenActions {
                         cols = Integer.decode(packet.variables.get(2));
                         partWidth = Integer.decode(packet.variables.get(5));
                         partHeight = Integer.decode(packet.variables.get(6));
+                        /*Инициализируем список частей*/
+                        screen = new ArrayList<>(partsCount);
+                        for(int i=0;i<partsCount;i++){
+                            screen.add(new ScreenPart(i,partWidth,partHeight));
+                        }
+                        /*Ждем, пока не определится вьюха для прорисовки
+                        * и передаем ей ссылку на буфер с частями*/
+                        while(view==null);
+                        view.setDrawingBuffer(this.screen);
                         actionsAllowed = true;
                         break;
                     case SCREEN:
                         if (actionsAllowed) {
                             /*Получаем номер части*/
                             int partNumber = Integer.decode(packet.variables.get(0));
-                            /*Если в списке еще нет элемента с таким номером, добавляем его
-                            * и сортируем список*/
+                            /*Устанавливаем изображение по указанному номеру*/
                             synchronized (screen) {
-                                if (!contains(partNumber)) {
-                                    screen.add(new ScreenPart(packet, partWidth, partHeight));
-                                    downloadedParts++;
-                                    /*Если загрузили все части, выводим их на экран*/
-                                    /*if(downloadedParts==partsCount) {
-                                        Collections.sort(screen);
-                                        view.setImageReady(true);
-                                    }*/
-                                }
-                                /*Иначе просто обновляем картинку*/
-                                else
-                                    screen.get(partNumber).setImage(packet.variables.get(3));
+                                screen.get(partNumber).setImage(packet.variables.get(3),
+                                    new Point(new Integer(packet.variables.get(1)),
+                                    new Integer(packet.variables.get(2))));
                             }
                         }
                         break;
                 }
-                if(actionsAllowed)
-                    imageIsReady();
             }
         }
     }
@@ -173,12 +168,11 @@ public class ScreenActions {
         /*Получаем изображение из пакета*/
         public ScreenPart(DataSet packet, int width, int height){
             this.partNumber = new Integer(packet.variables.get(0));
-            location = new Point(new Integer(packet.variables.get(1)),
-                    new Integer(packet.variables.get(2)));
             this.width = width;
             this.height = height;
             /*Получаем массив байтов с изображением*/
-            setImage(packet.variables.get(3));
+            setImage(packet.variables.get(3),new Point(new Integer(packet.variables.get(1)),
+                    new Integer(packet.variables.get(2))));
         }
 
         /*Создаем объект с указанными размерами и номером*/
@@ -194,7 +188,9 @@ public class ScreenActions {
                     if(ScreenPart.this.image==null) {
                         DataSet askPart = new DataSet(DataSet.ConnectionCommands.SCREEN);
                         askPart.add(partNumber);
-                        sendQueue.offer(askPart);
+                        synchronized (sendQueue) {
+                            sendQueue.offer(askPart);
+                        }
                     }
                     else {
                         downloadedParts++;
@@ -202,7 +198,7 @@ public class ScreenActions {
                     }
                 }
             };
-            getImageTimer.schedule(getImageTask,0,10);
+            getImageTimer.schedule(getImageTask,0,2000);
         }
 
         /*------МЕТОДЫ------*/
@@ -228,7 +224,6 @@ public class ScreenActions {
         /*Получаем массив байтов из строки*/
         private byte[] bytesFromString(String str){
             ByteArrayOutputStream bt = new ByteArrayOutputStream();
-            StringBuilder builder = new StringBuilder();
             String[] strArray = str.split("-");
             for(int i=0;i<strArray.length;i++){
                 bt.write(getByte(strArray[i]));
@@ -239,59 +234,7 @@ public class ScreenActions {
         /*Получаем байт из строки "ХХ"*/
         private byte getByte(String str)
         {
-            int result = 0;
-            for (int i=0;i<str.length();i++) {
-                result*=0x10;
-                switch (str.charAt(i)) {
-                    case '1':
-                        result+=0x01;
-                        break;
-                    case '2':
-                        result+=0x02;
-                        break;
-                    case '3':
-                        result+=0x03;
-                        break;
-                    case '4':
-                        result+=0x04;
-                        break;
-                    case '5':
-                        result+=0x05;
-                        break;
-                    case '6':
-                        result+=0x06;
-                        break;
-                    case '7':
-                        result+=0x07;
-                        break;
-                    case '8':
-                        result+=0x08;
-                        break;
-                    case '9':
-                        result+=0x09;
-                        break;
-                    case 'A':
-                        result+=0x0A;
-                        break;
-                    case 'B':
-                        result+=0x0B;
-                        break;
-                    case 'C':
-                        result+=0x0C;
-                        break;
-                    case 'D':
-                        result+=0x0D;
-                        break;
-                    case 'E':
-                        result+=0x0E;
-                        break;
-                    case 'F':
-                        result+=0x0F;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            int result = Integer.parseInt(str,16);
             return (byte)result;
 
         }

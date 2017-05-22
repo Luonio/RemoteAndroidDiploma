@@ -119,7 +119,7 @@ public class RemoteConnection {
                         public void run(){
                             write();
                         }
-                    },0,5,TimeUnit.MILLISECONDS);
+                    },0,40,TimeUnit.MILLISECONDS);
                 }
                 else {
                     stopConnection();
@@ -175,11 +175,11 @@ public class RemoteConnection {
 
     /*Постоянная запись данных*/
     private void write(){
-        /*Если очередь не пуста*/
-        if(global.screenActions.sendQueue.size()!=0)
-            synchronized (global.screenActions.sendQueue) {
+        synchronized (global.screenActions.sendQueue) {
+            /*Пока очередь не пуста отправляем запросы*/
+            while(global.screenActions.sendQueue.size()!=0)
                 send(global.screenActions.sendQueue.poll());
-            }
+        }
     }
 
     private Boolean Connect() {

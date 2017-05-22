@@ -27,7 +27,7 @@ import static android.content.ContentValues.TAG;
 
 public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback {
     /*Поток, в котором будем рисовать*/
-    private DrawThread thread;
+    private DrawThread drawThread;
     /*Сюда передадим ссылку на массив частей экрана*/
     private ArrayList<ScreenActions.ScreenPart> drawingBuffer;
 
@@ -68,18 +68,18 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        thread = new DrawThread(holder);
-        thread.setRunning(true);
-        thread.start();
+        drawThread = new DrawThread(holder);
+        drawThread.setRunning(true);
+        drawThread.start();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         boolean retry = true;
-        thread.setRunning(false);
+        drawThread.setRunning(false);
         while (retry) {
             try {
-                thread.join();
+                drawThread.join();
                 retry = false;
             }
             catch (InterruptedException e) {}
@@ -105,12 +105,13 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
         public void run(){
             /*Прежде всего ждем установки буфера*/
             while(drawingBuffer==null);
-            Canvas canvas;
+            /*Канвас для рисования на вьюхе*/
+            Canvas viewCanvas;
             while(running){
                 /*Если еще нет доступа к канвасу, переходим к следующей итерации*/
                 if(!surfaceHolder.getSurface().isValid())
                     continue;
-                    canvas = surfaceHolder.lockCanvas();
+                    viewCanvas = surfaceHolder.lockCanvas();
                 //if(imageReady)
                     synchronized (drawingBuffer) {
                         /*Перебираем пришедшие части экрана и рисуем новые*/
@@ -118,7 +119,7 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
                             if (part.isChanged()) {
                             /*Если в части уже прогрузилась картинка*/
                                 if (part.image != null) {
-                                    canvas.drawBitmap(part.image, part.location.x,
+                                    viewCanvas.drawBitmap(part.image, part.location.x,
                                             part.location.y, new Paint(Paint.ANTI_ALIAS_FLAG));
                                     part.setChanged(false);
                                 }
@@ -127,8 +128,8 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
                     }
                 /*else
                     canvas.drawColor(Color.GRAY);*/
-                if (canvas != null) {
-                        surfaceHolder.unlockCanvasAndPost(canvas);
+                if (viewCanvas != null) {
+                        surfaceHolder.unlockCanvasAndPost(viewCanvas);
                 }
             }
         }

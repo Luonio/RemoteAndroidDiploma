@@ -178,7 +178,7 @@ namespace WinFormTry_1
             lock (sendQueue)
                 sendQueue.Enqueue(screenInfo);
             Thread.Sleep(100);
-            sendAllTimer.Start();
+            //sendAllTimer.Start();
             while (true)
             {
                 /*Делаем снимок экрана, чтобы отправлялась обновленная картинка*/

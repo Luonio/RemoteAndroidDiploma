@@ -33,8 +33,8 @@ namespace WinFormTry_1
         public static Color itemTextColor = Color.FromArgb(230, 255, 255);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
-        public static String hostIP = "192.168.0.102";
-        public static int screenPort = 65000;
+        public static String hostIP = "192.168.0.103";
+        public static int screenPort = 65101;
         public static int communicationPort = 65001;
         public static String username;
         public static String securityCode;

@@ -18,6 +18,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static android.content.ContentValues.TAG;
 
@@ -28,10 +33,24 @@ import static android.content.ContentValues.TAG;
 public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback {
     /*Поток, в котором будем рисовать*/
     private DrawThread drawThread;
+    private ScheduledExecutorService drawer;
     /*Сюда передадим ссылку на массив частей экрана*/
     private ArrayList<ScreenActions.ScreenPart> drawingBuffer;
+    /*юда передаем ссылку на очередь с частями для прорисовки*/
+    private Queue<ScreenActions.ScreenPart> drawingQueue;
     /*Картинка, которую собираем из частей*/
     private Bitmap screenCapture;
+
+    /*Ссылка на синглтон*/
+    final Global global = Global.getInstance();
+
+    /*Канвасы*/
+    /*Канвас для рисования на вьюхе*/
+    Canvas viewCanvas;
+    /*Канвас для рисования на Bitmap'е*/
+    Canvas captureCanvas;
+
+    final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     /*Готовность отображения снимка экрана*/
     private boolean imageReady = false;
@@ -39,25 +58,29 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
     /*------КОНСТРУКТОРЫ------*/
     public RemoteScreen(Context ctx){
         super(ctx);
-        Global.getInstance().screenActions.setView(this);
+        global.screenActions.setView(this);
         getHolder().addCallback(this);
     }
 
     public RemoteScreen(Context context, AttributeSet attrs){
         super(context,attrs);
-        Global.getInstance().screenActions.setView(this);
+        global.screenActions.setView(this);
         getHolder().addCallback(this);
     }
 
     public RemoteScreen(Context context, AttributeSet attrs, int defStyle){
         super(context, attrs, defStyle);
-        Global.getInstance().screenActions.setView(this);
+        global.screenActions.setView(this);
         getHolder().addCallback(this);
     }
 
     /*------МЕТОДЫ------*/
     public void setDrawingBuffer(ArrayList<ScreenActions.ScreenPart> drawingBuffer) {
         this.drawingBuffer = drawingBuffer;
+    }
+
+    public void setDrawingQueue(Queue<ScreenActions.ScreenPart> queue){
+        this.drawingQueue = queue;
     }
 
     public void setImageReady(boolean value){
@@ -75,9 +98,35 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        //captureCanvas = new Canvas();
+        /*Ждем установки изображения*/
+        while(screenCapture==null);
+        //captureCanvas.setBitmap(screenCapture);
+        //captureCanvas.drawColor(Color.BLACK);
+        //while(drawingQueue==null);
+        /*Создаем планировщик на два потока*/
         drawThread = new DrawThread(holder);
         drawThread.setRunning(true);
-        drawThread.start();
+        drawer = Executors.newScheduledThreadPool(1);
+        /*drawer.scheduleWithFixedDelay(new Runnable(){
+            @Override
+            public void run(){
+                /*Запрещаем прием картинок, чтобы отрисовка прошла*/
+                /*global.screenActions.setActionsAllowed(false);
+                /*-------------Объединяем части в одно изображение--------------*/
+                /*ScreenActions.ScreenPart part;
+                synchronized (drawingQueue) {
+                    while(!drawingQueue.isEmpty()){
+                        part = drawingQueue.poll();
+                        captureCanvas.drawBitmap(part.image, part.location.x,
+                                part.location.y, paint);
+                    }
+                }
+                /*Снова разрешаем прием картинок*/
+                /*global.screenActions.setActionsAllowed(true);
+            }
+        },0,40,TimeUnit.MILLISECONDS);*/
+        drawer.scheduleWithFixedDelay(new DrawThread(holder),0,40, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -110,43 +159,17 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
 
         @Override
         public void run(){
-            /*Прежде всего ждем установки буфера*/
-            while(drawingBuffer==null);
-            /*Канвас для рисования на вьюхе*/
-            Canvas viewCanvas;
-            /*Канвас для рисования на Bitmap'е*/
-            Canvas captureCanvas = new Canvas();
-            captureCanvas.setBitmap(screenCapture);
-            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            captureCanvas.drawColor(Color.BLACK);
-            while(running){
-                /*-------------Объединяем части в одно изображение--------------*/
-                //if(imageReady)
-                synchronized (drawingBuffer) {
-                    /*Перебираем пришедшие части экрана и рисуем новые*/
-                    for (ScreenActions.ScreenPart part : drawingBuffer) {
-                        if (part.isChanged()) {
-                            /*Если в части уже прогрузилась картинка*/
-                            if (part.image != null) {
-                                captureCanvas.drawBitmap(part.image, part.location.x,
-                                        part.location.y, paint);
-                                part.setChanged(false);
-                            }
-                        }
-                    }
-                }
                 /*------------------------Рисуем на вьюхе------------------------*/
                 /*Если еще нет доступа к канвасу, переходим к следующей итерации*/
                 if(!surfaceHolder.getSurface().isValid())
-                    continue;
+                    return;
                 viewCanvas = surfaceHolder.lockCanvas();
-                viewCanvas.drawBitmap(screenCapture,0,0,paint);
-                /*else
-                    canvas.drawColor(Color.GRAY);*/
+                viewCanvas.drawBitmap(global.screenActions.getScreenCapture(),0,0,paint);
                 if (viewCanvas != null) {
                         surfaceHolder.unlockCanvasAndPost(viewCanvas);
                 }
-            }
+                while(!surfaceHolder.getSurface().isValid());
+
         }
     }
 }

@@ -2,7 +2,10 @@ package plotnikova.androidclient;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.ImageReader;
 import android.view.SurfaceView;
@@ -36,6 +39,15 @@ public class ScreenActions {
     public Queue<DataSet> sendQueue;
     /*Очередь с полученными командами*/
     public Queue<DataSet> receiveQueue;
+    /*Очередь с частями для прорисовки*/
+    private Queue<ScreenPart> drawingQueue;
+
+    /*Картинка, которую собираем из частей*/
+    private Bitmap screenCapture;
+    /*Канвас для рисования на Bitmap'е*/
+    Canvas captureCanvas;
+    /*Для отрисовки изображения*/
+    final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     /*Список частей экрана*/
     private ArrayList<ScreenPart> screen;
@@ -51,7 +63,7 @@ public class ScreenActions {
     private int partWidth;
     private int partHeight;
 
-    /*false, пока не получим команду SCREENINFO*/
+    /*false, пока не получим команду SCREENINFO или пока рисуем на вьюхе*/
     private boolean actionsAllowed;
 
     ScheduledExecutorService service;
@@ -59,6 +71,7 @@ public class ScreenActions {
     public ScreenActions(){
         sendQueue = new ConcurrentLinkedQueue<>();
         receiveQueue = new ConcurrentLinkedQueue<>();
+        drawingQueue = new ConcurrentLinkedQueue<>();
         partsCount = 0;
         downloadedParts = 0;
         rows = 0;
@@ -82,16 +95,22 @@ public class ScreenActions {
             public void run() {
                 executeCommand();
             }
-        },0,1, TimeUnit.MILLISECONDS);
+        },0,5, TimeUnit.MILLISECONDS);
+    }
+
+
+    public Bitmap getScreenCapture(){
+        return this.screenCapture;
     }
 
     /*Выполняем команды из очереди, если она не пуста*/
     private void executeCommand() {
         synchronized (receiveQueue) {
             if (receiveQueue.size() != 0) {
-                DataSet packet = receiveQueue.poll();
+                DataSet packet = receiveQueue.peek();
                 switch (packet.command) {
                     case SCREENINFO:
+                        receiveQueue.remove();
                         partsCount = Integer.decode(packet.variables.get(0));
                         rows = Integer.decode(packet.variables.get(1));
                         cols = Integer.decode(packet.variables.get(2));
@@ -105,12 +124,16 @@ public class ScreenActions {
                         /*Ждем, пока не определится вьюха для прорисовки
                         * и передаем ей ссылку на буфер с частями*/
                         while(view==null);
-                        view.setImageSize(partWidth*cols,partHeight*rows);
+                        screenCapture = Bitmap.createBitmap(partWidth*cols,partHeight*rows, Bitmap.Config.RGB_565);
+                        captureCanvas.setBitmap(screenCapture);
+                        captureCanvas.drawColor(Color.BLACK);
                         view.setDrawingBuffer(this.screen);
+                        //view.setDrawingQueue(this.drawingQueue);
                         actionsAllowed = true;
                         break;
                     case SCREEN:
                         if (actionsAllowed) {
+                            receiveQueue.remove();
                             /*Получаем номер части*/
                             int partNumber = Integer.decode(packet.variables.get(0));
                             /*Устанавливаем изображение по указанному номеру*/
@@ -166,16 +189,6 @@ public class ScreenActions {
         private Timer getImageTimer;
 
         /*------КОНСТРУКТОРЫ------*/
-        /*Получаем изображение из пакета*/
-        public ScreenPart(DataSet packet, int width, int height){
-            this.partNumber = new Integer(packet.variables.get(0));
-            this.width = width;
-            this.height = height;
-            /*Получаем массив байтов с изображением*/
-            setImage(packet.variables.get(3),new Point(new Integer(packet.variables.get(1)),
-                    new Integer(packet.variables.get(2))));
-        }
-
         /*Создаем объект с указанными размерами и номером*/
         public ScreenPart(int number, int width, int height){
             this.partNumber = number;
@@ -210,7 +223,10 @@ public class ScreenActions {
                 this.location = loc;
                 byte[] byteImg = bytesFromString(value);
                 this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
-                changed = true;
+                captureCanvas.drawBitmap(this.image, this.location.x,
+                        this.location.y, paint);
+               // changed = true;
+
             }
         }
 

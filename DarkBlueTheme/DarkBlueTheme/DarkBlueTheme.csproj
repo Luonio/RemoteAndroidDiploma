@@ -47,11 +47,23 @@
     <Compile Include="DBButton.Designer.cs">
       <DependentUpon>DBButton.cs</DependentUpon>
     </Compile>
+    <Compile Include="DBCopyTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DBCopyTextBox.Designer.cs">
+      <DependentUpon>DBCopyTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="DBHeader.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="DBHeader.Designer.cs">
       <DependentUpon>DBHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DBIconButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DBIconButton.Designer.cs">
+      <DependentUpon>DBIconButton.cs</DependentUpon>
     </Compile>
     <Compile Include="DBLabel.cs">
       <SubType>Component</SubType>
@@ -59,12 +71,19 @@
     <Compile Include="DBLabel.Designer.cs">
       <DependentUpon>DBLabel.cs</DependentUpon>
     </Compile>
+    <Compile Include="DBRadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DBRadioButton.Designer.cs">
+      <DependentUpon>DBRadioButton.cs</DependentUpon>
+    </Compile>
     <Compile Include="DBTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="DBTextBox.Designer.cs">
       <DependentUpon>DBTextBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Palette.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -90,6 +109,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\toNormal_window_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\edit_info_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -57,6 +57,8 @@ namespace DarkBlueTheme
         }
 
         #region Переменные
+        /*Отвечает за рисование рамки*/
+        bool isMaximized = false;
         /*Сторона квадрата, в котором находится картинка на кнопке*/
         int pictSide;
         /*Предыдущее положение курсора*/
@@ -73,13 +75,12 @@ namespace DarkBlueTheme
         public DBHeader(Form frm)
         {
             InitializeComponent();
-            InitializeComponent();
             parentForm = frm;
-            this.Width = frm.ClientSize.Width;
+            this.Width = frm.ClientSize.Width-2;
             this.Height = GetSystemMetrics(Indexes.SM_CYCAPTION) + 7;
-            this.Location = new Point(0, 0);
-            this.BackColor = Color.FromArgb(0, 10, 30); ;
-            this.ForeColor = Color.FromArgb(207, 207, 220);
+            this.Location = new Point(1, 1);
+            this.BackColor = Palette.DarkBlue;
+            this.ForeColor = Palette.LightGrayTextColor;
             this.Load += DBHeader_Load;
             this.MouseDown += DBHeader_MouseDown;
             this.MouseMove += DBHeader_MouseMove;
@@ -112,6 +113,12 @@ namespace DarkBlueTheme
             /*Добавляем onPaint для родительской формы*/
             parentForm.Paint += parentForm_OnPaint;
             this.Show();
+            parentForm.Activated += ParentForm_Activated;
+        }
+
+        private void ParentForm_Activated(object sender, EventArgs e)
+        {
+            DrawBorders();
         }
 
         /*Добавление на контрол кнопок*/
@@ -119,6 +126,7 @@ namespace DarkBlueTheme
         {
             Button bt = new Button();
             bt.Size = new Size(GetSystemMetrics(Indexes.SM_CXSIZE), this.Height);
+            bt.Width -= 1;
             bt.BackgroundImageLayout = ImageLayout.Zoom;
             bt.BackColor = Color.Transparent;
             bt.FlatStyle = FlatStyle.Flat;
@@ -177,7 +185,7 @@ namespace DarkBlueTheme
          и положение кнопок*/
         private void ParentForm_OnResize(object sender, EventArgs e)
         {
-            this.Width = Parent.Width;
+            this.Width = Parent.Width-2;
             exitButton.Location = new Point(this.Width - exitButton.Width, 0);
             resizeButton.Location = new Point(this.Width - 2 * resizeButton.Width, 0);
             hideButton.Location = new Point(this.Width - 3 * hideButton.Width, 0);
@@ -188,9 +196,16 @@ namespace DarkBlueTheme
         /*Добавляем рамку*/
         private void parentForm_OnPaint(object sender, PaintEventArgs e)
         {
+            if (this.parentForm.WindowState == FormWindowState.Normal)
+                DrawBorders();
+        }
+
+        /*Рисование рамки на родительской форме*/
+        private void DrawBorders()
+        {
             /*Добавляем рамку*/
             Graphics clientRect = parentForm.CreateGraphics();
-            Pen borderPen = new Pen(Color.FromArgb(180, 200, 220));
+            Pen borderPen = new Pen(Palette.LightBorderColor);
             clientRect.DrawRectangle(borderPen, 0, 0, parentForm.Width - 1, parentForm.Height - 1);
             clientRect.Dispose();
         }
@@ -235,7 +250,7 @@ namespace DarkBlueTheme
 
         private void hideButton_MouseEnter(object sender, EventArgs e)
         {
-            hideButton.BackColor = Color.FromArgb(110, 120, 150);
+            hideButton.BackColor = Palette.LightFocusedButtonColor;
         }
 
         private void resizeButton_MouseLeave(object sender, EventArgs e)
@@ -245,7 +260,7 @@ namespace DarkBlueTheme
 
         private void resizeButton_MouseEnter(object sender, EventArgs e)
         {
-            resizeButton.BackColor = Color.FromArgb(110, 120, 150);
+            resizeButton.BackColor = Palette.LightFocusedButtonColor;
         }
 
         #endregion

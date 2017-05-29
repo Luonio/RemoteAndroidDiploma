@@ -53,7 +53,7 @@ namespace WinFormTry_1
             this.FormClosing += ChildFormsTemplate_FormClosing;
         }
 
-        protected void ChildFormsTemplate_FormClosing(object sender, FormClosingEventArgs e)
+        protected virtual void ChildFormsTemplate_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
             this.Hide();

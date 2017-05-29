@@ -16,7 +16,7 @@ namespace WinFormTry_1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainServerForm());
+            Application.Run(new WaitConnectionForm());
         }
     }
 }

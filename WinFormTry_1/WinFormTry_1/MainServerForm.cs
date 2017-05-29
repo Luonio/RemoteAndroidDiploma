@@ -39,9 +39,6 @@ namespace WinFormTry_1
         /*Список пунктов меню*/
         private List<MenuItemControl> menuItems;
 
-        /*Переменная, отвечающая за соединение*/
-        RemoteConnection connection;
-
         #endregion
 
         #region Окна
@@ -50,7 +47,7 @@ namespace WinFormTry_1
         ChatForm chat;
 
         /*Окно настроек*/
-        PropertiesForm properties;
+        public WaitConnectionForm properties;
 
         #endregion
 
@@ -79,7 +76,9 @@ namespace WinFormTry_1
             /*Добавляем события формы*/
             this.FormClosing += MainServerForm_FormClosing;
             this.Load += MainServerForm_Load;
+            this.Shown += MainServerForm_Shown;
         }
+
 
         /*Загрузка формы. Инициализируем список объектов меню и выводим их*/
         private void MainServerForm_Load(object sender, EventArgs e)
@@ -148,21 +147,16 @@ namespace WinFormTry_1
             menuItems[indexFromEnd].Location = new Point(itemLocationX, itemLocationY);
             #endregion
 
-            /*Генерируем случайный пароль*/
-            Global.securityCode = GetRandomCode(8);
-
-            /*Инициализируем экранную переменную*/
-            Global.screenActions = new ScreenActions();
-
-            /*Инициализируем сетевую переменную*/
-            connection = new RemoteConnection();
-
             /*Создание иконки рядом с панелью задач*/
             notifyIcon.Icon = Properties.Resources.notify_icon;
             /*Подгружаем окно чата*/
             chat = new ChatForm();
-            /*Подгружаем окно настроек*/
-            properties = new PropertiesForm();
+        }
+
+        /*Отображение формы. Скрываем окно подключения*/
+        private void MainServerForm_Shown(object sender, EventArgs e)
+        {
+            properties.Hide();
         }
 
         /*Создаем плавную анимацию изменения размера формы с помощьюю таймера
@@ -282,7 +276,10 @@ namespace WinFormTry_1
         /*Открытие окна "настройки"*/
         private void Properties_MouseClick(object sender, MouseEventArgs e)
         {
-            properties.Show();
+            if (properties.shown)
+                properties.Hide();
+            else
+                properties.Show();
         }
 
         #endregion
@@ -340,28 +337,5 @@ namespace WinFormTry_1
         }
 
         #endregion
-
-        #region Остальные методы
-
-        /*Генерация рандомного пароля*/
-        public String GetRandomCode(int size)
-        {
-            string password = "";
-            Random rand = new Random();
-            char c;
-            while(password.Length<size)
-            {
-                c = (char)rand.Next(33, 125);
-                if (Char.IsLetterOrDigit(c))
-                    password += c;
-            }
-            return password;
-        }
-
-        #endregion
-
-
-
-
     }
 }

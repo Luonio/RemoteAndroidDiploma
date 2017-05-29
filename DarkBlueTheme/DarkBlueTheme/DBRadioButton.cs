@@ -3,9 +3,9 @@ using System.Windows.Forms;
 
 namespace DarkBlueTheme
 {
-    public partial class DBButton: Button
+    public partial class DBRadioButton : RadioButton
     {
-        public DBButton()
+        public DBRadioButton()
         {
             InitializeComponent();
             this.FlatStyle = FlatStyle.Flat;

@@ -16,15 +16,17 @@ namespace DarkBlueTheme
         public DBLabel()
         {
             InitializeComponent();
-            this.ForeColor = Color.FromArgb(207, 207, 220);
+            this.ForeColor = Palette.LightGrayTextColor;
             this.AutoSize = true;
         }
 
         public DBLabel(string text)
         {
             InitializeComponent();
+            /*Устанавливаем метке ширину строки*/
+            this.Width = TextRenderer.MeasureText(text, this.Font).Width;
             this.Text = text;
-            this.ForeColor = Color.FromArgb(207, 207, 220);
+            this.ForeColor = Palette.LightGrayTextColor;
             this.AutoSize = true;
 
         }

@@ -73,6 +73,16 @@ namespace DarkBlueTheme.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap edit_info_icon {
+            get {
+                object obj = ResourceManager.GetObject("edit_info_icon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap hide_window_icon {
             get {
                 object obj = ResourceManager.GetObject("hide_window_icon", resourceCulture);

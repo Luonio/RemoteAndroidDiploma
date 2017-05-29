@@ -117,6 +117,12 @@
     </Compile>
     <Compile Include="RemoteConnection.cs" />
     <Compile Include="ScreenActions.cs" />
+    <Compile Include="WaitConnectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaitConnectionForm.Designer.cs">
+      <DependentUpon>WaitConnectionForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="AltActionsControl.resx">
       <DependentUpon>AltActionsControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -148,6 +154,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="WaitConnectionForm.resx">
+      <DependentUpon>WaitConnectionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -253,6 +262,15 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\edit_info_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\refresh_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\edit_icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -14,9 +14,13 @@ namespace WinFormTry_1
 {
     public class RemoteConnection
     {
+        #region Поля
         /*Список сохраненных девайсов
           с устройств из этого списка можно подключаться без пароля*/
         public static List<RemoteDevice> savedDevices = new List<RemoteDevice>();
+
+        /*Текущее состояние подключения*/
+        private bool connected = false;
 
         /*Имя компьютера*/
         public String device;
@@ -29,12 +33,17 @@ namespace WinFormTry_1
         /*Android-клиент, подключающийся к компьютеру*/
         RemoteDevice remoteClient;
 
+        public IPEndPoint client;
+
         /*Действия сервера и клиента*/
         ScreenActions screenActions = Global.screenActions;
 
 
         private Socket remoteListener;
 
+        #endregion
+
+        #region Составные типы
         /*Уровень доступа клиента.
           None - ожидание команды INIT
           SendPassword - получение пароля
@@ -44,12 +53,14 @@ namespace WinFormTry_1
         {
             None,
             SendPassword,
-            Connect, 
+            Connect,
             SendData
         }
 
         AccessLevel access = AccessLevel.None;
+        #endregion
 
+        #region Свойства
         /*Имя пользователя*/
         public String username
         {
@@ -78,8 +89,6 @@ namespace WinFormTry_1
             set { }
         }
 
-        public IPEndPoint client;
-
         /*Внешний ip роутера*/
         public IPAddress externalIP
         {
@@ -91,6 +100,32 @@ namespace WinFormTry_1
                 return IPAddress.Parse(ip);
             }
         }
+
+        public bool Connected
+        {
+            get
+            {
+                return connected;
+            }
+            set
+            {
+                connected = value;
+                if(ConnectionStateChanged!=null)
+                {
+                    EventArgs ev = new EventArgs();
+                    ConnectionStateChanged(this, ev);
+                }
+            }
+        }
+        #endregion
+
+        #region События для переменных
+        /*Событие для отслеживания состояния подключения*/
+        public delegate void ConnectionStateChangedHandler(object sender, EventArgs eventArgs);
+        public event ConnectionStateChangedHandler ConnectionStateChanged;
+        #endregion
+
+
 
         /*Конструктор класса*/
         public RemoteConnection()
@@ -119,8 +154,8 @@ namespace WinFormTry_1
             }
             catch (Exception ex)
             {
-                if(ex.GetType().Name!="NatDeviceNotFoundException")
-                    DialogForm.Show("Ошибка", ex.ToString(), Global.DialogTypes.message);
+                if (ex.GetType().Name != "NatDeviceNotFoundException")
+                    DialogForm.Show("Ошибка", ex.Message, Global.DialogTypes.message);
             }
             try
             {        
@@ -193,7 +228,7 @@ namespace WinFormTry_1
                                 Как только отловили команду PASSWORD, проверяем указанный в сообщении пароль*/
                             if (passStructure.command == DataSet.ConnectionCommands.PASSWORD)
                             {
-                                if (passStructure.variables[0].Equals(securityCode))
+                                if (passStructure.variables[0].Equals(Global.securityCode))
                                     access = AccessLevel.Connect;
                                 else
                                 {
@@ -234,6 +269,7 @@ namespace WinFormTry_1
                     #endregion
                     /*Если получили доступ к передаче данных, выходим из метода инициализации*/
                     case AccessLevel.SendData:
+                        Connected = true;
                         return;
                 }
             }

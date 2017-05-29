@@ -11,15 +11,16 @@ using DarkBlueTheme;
 
 namespace WinFormTry_1
 {
-    public partial class WaitConnectionForm : ChildFormsTemplate
+    public partial class WaitConnectionForm : DBForm
     {
         #region Поля
         /*Контролы*/
         DBCopyTextBox username;
-        DBCopyTextBox ip;
+        DBCopyTextBox address;
         DBCopyTextBox pass;
 
         DBIconButton changeUsernameButton;
+        DBIconButton changePortButton;
         DBIconButton refreshPassButton;
 
         MainServerForm server;
@@ -30,6 +31,7 @@ namespace WinFormTry_1
         public WaitConnectionForm()
         {
             InitializeComponent();
+            this.Size = new Size(300, 400);
             this.Text = "Подключение";
             /*Располагаем форму по центру*/
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -49,32 +51,57 @@ namespace WinFormTry_1
             #region Контролы
             /*Label'ы*/
             DBLabel nameLabel = new DBLabel("Имя пользователя:");
-            DBLabel ipLabel = new DBLabel("Текущий IP-адрес:");
+            DBLabel ipLabel = new DBLabel("Текущий адрес:");
             DBLabel passLabel = new DBLabel("Пароль:");
             username = new DBCopyTextBox(Global.username.ToString());
-            ip = new DBCopyTextBox(Global.hostIP);
+            address = new DBCopyTextBox(String.Format(Global.externalIP+":{0}",Global.receivePort));
             pass = new DBCopyTextBox(Global.securityCode);
-            nameLabel.Location = new Point(marginCoef, ClientRectangle.Y + marginCoef*2);
+            nameLabel.Location = new Point(marginCoef, marginCoef*2);
             ipLabel.Location = new Point(marginCoef, nameLabel.Location.Y + nameLabel.Height + marginCoef);
             passLabel.Location = new Point(marginCoef, ipLabel.Location.Y + ipLabel.Height + marginCoef);
             username.Location = new Point(nameLabel.Width + marginCoef, nameLabel.Location.Y);
-            ip.Location = new Point(ipLabel.Width + marginCoef, ipLabel.Location.Y);
+            address.Location = new Point(ipLabel.Width + marginCoef, ipLabel.Location.Y);
             pass.Location = new Point(passLabel.Width + marginCoef, passLabel.Location.Y);
-            Controls.Add(nameLabel);
-            Controls.Add(ipLabel);
-            Controls.Add(passLabel);
-            Controls.Add(username);
-            Controls.Add(ip);
-            Controls.Add(pass);
+            WorkingArea.Controls.Add(nameLabel);
+            WorkingArea.Controls.Add(ipLabel);
+            WorkingArea.Controls.Add(passLabel);
+            WorkingArea.Controls.Add(username);
+            WorkingArea.Controls.Add(address);
+            WorkingArea.Controls.Add(pass);
             /*Кнопки редактирования*/
             changeUsernameButton = new DBIconButton(Properties.Resources.edit_icon);
             changeUsernameButton.Location = new Point(username.Location.X + username.Width, username.Location.Y);
+            changePortButton = new DBIconButton(Properties.Resources.edit_icon);
+            changePortButton.Location = new Point(address.Location.X + address.Width, address.Location.Y);
             refreshPassButton = new DBIconButton(Properties.Resources.refresh_icon);
             refreshPassButton.Location = new Point(pass.Location.X + pass.Width, pass.Location.Y);
+            /*По нажатию на кнопку вызываем диалог изменения свойства*/
+            changeUsernameButton.Click += ((o, ev) =>
+              {
+                  DialogResult result = new DialogResult();
+                  string editField = DialogForm.Show("Имя пользователя", Global.username, Global.DialogTypes.edit, out result);
+                  if (result == DialogResult.OK)
+                      Global.username = editField;
+                  username.Text = Global.username;
+                  changeUsernameButton.Location = new Point(username.Location.X + username.Width, username.Location.Y);
+              });
+            changePortButton.Click += ((o, ev) =>
+              {
+                  DialogResult result = new DialogResult();
+                  string editField = DialogForm.Show("Порт", Global.username, Global.DialogTypes.edit, out result);
+                  if (result == DialogResult.OK)
+                  {
+                      Global.receivePort = Convert.ToInt32(editField);
+                      address.Text = String.Format(Global.externalIP + ":{0}", Global.receivePort);
+                      changePortButton.Location = new Point(address.Location.X + address.Width, address.Location.Y);
+                      Global.connection = new RemoteConnection();
+                  }
+              });
             /*По нажатию на кнопку обновляем пароль*/
             refreshPassButton.MouseClick += RefreshPassButton_MouseClick;
-            Controls.Add(changeUsernameButton);
-            Controls.Add(refreshPassButton);
+            WorkingArea.Controls.Add(changeUsernameButton);
+            WorkingArea.Controls.Add(changePortButton);
+            WorkingArea.Controls.Add(refreshPassButton);
             #endregion
             server = new MainServerForm();
             server.properties = this;
@@ -90,13 +117,12 @@ namespace WinFormTry_1
                 else
                 {
                     server.Hide();
-                    this.Show();
                 }
             });
             connectionMonitor.Start();
         }
 
-        protected override void ChildFormsTemplate_FormClosing(object sender, FormClosingEventArgs e)
+        public override void DBForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (!Global.connection.Connected)
             {

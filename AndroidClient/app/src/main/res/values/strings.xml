@@ -2,7 +2,8 @@
     <string name="app_name">AndroidClient</string>
     <string name="title_connect">Подключение</string>
     <string name="title_computers">Устройства</string>
-    <string name="remotePort">65000</string>
+    <string name="sendPort">65011</string>
+    <string name="receivePort">65002</string>
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
 

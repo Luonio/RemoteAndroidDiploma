@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using System.Drawing.Imaging;
+using System.Net;
+using System.Net.NetworkInformation;
 
 namespace WinFormTry_1
 {
@@ -15,8 +17,9 @@ namespace WinFormTry_1
         public enum DialogTypes
         {
             none = 0,
-            close = 1,
-            message = 2
+            close,
+            message,
+            edit
         }
 
         #region Поля
@@ -33,9 +36,22 @@ namespace WinFormTry_1
         public static Color itemTextColor = Color.FromArgb(230, 255, 255);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
 
-        public static String hostIP = "192.168.0.102";
-        public static int screenPort = 65000;
-        public static int communicationPort = 65001;
+        private static String hostIP = "192.168.0.101";
+        /*Внешний ip роутера*/
+        public static IPAddress externalIP
+        {
+            get
+            {
+                string ip = new WebClient().DownloadString("http://icanhazip.com");
+                if (ip.Contains('\n'))
+                    return IPAddress.Parse(ip.Remove(ip.Length - 1, 1));
+                return IPAddress.Parse(ip);
+            }
+        }
+        public static int receivePort = 65011;
+        public static int sendPort = 65002;
+        /*public static int screenPort = 65000 ;
+        public static int communicationPort = 65001;*/
         public static String username = Environment.MachineName;
         public static String securityCode;
         public static RemoteConnection connection;

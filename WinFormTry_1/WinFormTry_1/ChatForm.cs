@@ -11,7 +11,7 @@ using DarkBlueTheme;
 
 namespace WinFormTry_1
 {
-    public partial class ChatForm : ChildFormsTemplate
+    public partial class ChatForm : DBForm
     {
         /*Рабочее пространство*/
         Panel chatPanel;
@@ -55,8 +55,6 @@ namespace WinFormTry_1
             SetButtonBounds(ref enterButton);
             chatPanel.Controls.Add(enterButton);
             #endregion
-            this.FormClosing -= ChildFormsTemplate_FormClosing;
-            this.FormClosing += ChatForm_FormClosing;
         }
 
         private void EnterBox_KeyDown(object sender, KeyEventArgs e)
@@ -75,7 +73,7 @@ namespace WinFormTry_1
             }
         }
 
-        private void ChatForm_FormClosing(object sender, FormClosingEventArgs e)
+        public override void DBForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             e.Cancel = true;
             if (enterBox.Text != "")

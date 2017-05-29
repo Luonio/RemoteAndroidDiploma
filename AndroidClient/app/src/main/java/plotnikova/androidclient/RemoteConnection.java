@@ -36,11 +36,11 @@ public class RemoteConnection {
     public String device;
     /*Информация о сервере*/
     public RemoteHost host;
-    /*Код безопасности*/
-    public String securityCode;
     /*Сокет, по которому будем вести соединение*/
     DatagramSocket sendSocket;
     DatagramSocket receiveSocket;
+
+    int receivePort = 0;
 
     ScheduledExecutorService service;
 
@@ -71,7 +71,8 @@ public class RemoteConnection {
         this.device = Build.MANUFACTURER+Build.MODEL+" ("+Build.DEVICE+")";
         this.username = device;
         /*Инициализируем сервер*/
-        host = new RemoteHost(ip,Integer.parseInt(parent.getString(R.string.remotePort)));
+        host = new RemoteHost(ip,Integer.parseInt(parent.getString(R.string.sendPort)));
+        receivePort = Integer.parseInt(parent.getString(R.string.receivePort));
         this.username = username;
     }
 
@@ -81,7 +82,8 @@ public class RemoteConnection {
         this.device = Build.MANUFACTURER+Build.MODEL+" ("+Build.DEVICE+")";
         this.username = device;
         /*Инициализируем сервер*/
-        host = new RemoteHost(ip, Integer.parseInt(parent.getString(R.string.remotePort)));
+        host = new RemoteHost(ip, Integer.parseInt(parent.getString(R.string.sendPort)));
+        receivePort = Integer.parseInt(parent.getString(R.string.receivePort));
     }
 
     /*---------МЕТОДЫ---------*/
@@ -97,8 +99,8 @@ public class RemoteConnection {
             @Override
             public void run(){
                 try{
-                    sendSocket = new DatagramSocket();
-                    receiveSocket = new DatagramSocket(host.port);
+                    sendSocket = new DatagramSocket(host.port);
+                    receiveSocket = new DatagramSocket(receivePort);
                 }
                 catch (SocketException e) {
                     /*TODO: заполнить обработку ошибки сокета*/
@@ -153,7 +155,7 @@ public class RemoteConnection {
     public DataSet receive()    {
         try {
             byte[] receiveData = new byte[8192];
-            DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length, host.ip, host.port);
+            DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length, host.ip, receivePort);
             receiveSocket.receive(packet);
             String msg = new String(packet.getData(), packet.getOffset(), packet.getLength());
             return (new DataSet(msg));

@@ -13,7 +13,7 @@ namespace DarkBlueTheme
         public DBCopyTextBox()
         {
             InitializeComponent();
-            this.BackColor = Color.Transparent;
+            this.BackColor = Palette.DarkGrayBlueWorkingArea;
             this.ForeColor = Palette.LightGrayTextColor;
             this.ReadOnly = true;
         }
@@ -23,7 +23,7 @@ namespace DarkBlueTheme
             InitializeComponent();
             /*Устанавливаем боксу ширину строки*/
             this.Width = TextRenderer.MeasureText(text, this.Font).Width;
-            this.BackColor = Palette.DarkBlue;
+            this.BackColor = Palette.DarkGrayBlueWorkingArea;
             this.ForeColor = Palette.LightGrayTextColor;
             this.BorderStyle = BorderStyle.None;
             this.ReadOnly = true;

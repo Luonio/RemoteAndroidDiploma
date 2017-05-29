@@ -17,7 +17,7 @@ namespace DarkBlueTheme
         /*Заголовок окна*/
         Label headerBox;
 
-        /*невидимые контролы для масштабирования*/
+        /*Белые контролы для масштабирования*/
         struct ScalingControls
         {
             public static Control topLeft;
@@ -57,8 +57,6 @@ namespace DarkBlueTheme
         }
 
         #region Переменные
-        /*Отвечает за рисование рамки*/
-        bool isMaximized = false;
         /*Сторона квадрата, в котором находится картинка на кнопке*/
         int pictSide;
         /*Предыдущее положение курсора*/
@@ -70,22 +68,17 @@ namespace DarkBlueTheme
         private Point preResizeFormPosition;
         #endregion
 
-
-
         public DBHeader(Form frm)
         {
             InitializeComponent();
             parentForm = frm;
-            this.Width = frm.ClientSize.Width-2;
-            this.Height = GetSystemMetrics(Indexes.SM_CYCAPTION) + 7;
-            this.Location = new Point(1, 1);
+            SetBounds();
             this.BackColor = Palette.DarkBlue;
             this.ForeColor = Palette.LightGrayTextColor;
             this.Load += DBHeader_Load;
-            this.MouseDown += DBHeader_MouseDown;
-            this.MouseMove += DBHeader_MouseMove;
-            this.Paint += DBHeader_Paint;
         }
+
+
 
         private void DBHeader_Load(object sender, EventArgs e)
         {
@@ -106,19 +99,11 @@ namespace DarkBlueTheme
             ScalingControls.left = new Control();
             #endregion
             this.DoubleBuffered = true;
-            parentForm.MaximumSize = Screen.PrimaryScreen.WorkingArea.Size;
-            parentForm.FormBorderStyle = FormBorderStyle.None;
-            /*Добавляем отлов изменения размера родительской формы*/
-            parentForm.Resize += ParentForm_OnResize;
-            /*Добавляем onPaint для родительской формы*/
-            parentForm.Paint += parentForm_OnPaint;
+            this.MouseDown += DBHeader_MouseDown;
+            this.MouseMove += DBHeader_MouseMove;
+            this.Paint += DBHeader_Paint;
+            this.Resize += DBHeader_Resize;
             this.Show();
-            parentForm.Activated += ParentForm_Activated;
-        }
-
-        private void ParentForm_Activated(object sender, EventArgs e)
-        {
-            DrawBorders();
         }
 
         /*Добавление на контрол кнопок*/
@@ -172,6 +157,7 @@ namespace DarkBlueTheme
         {
             headerBox = new Label();
             headerBox.Text = ParentForm.Text;
+            headerBox.Width = TextRenderer.MeasureText(headerBox.Text, headerBox.Font).Width;
             headerBox.Location = new Point(Convert.ToInt32(this.Height), this.Height / 2 - headerBox.Height / 4);
             headerBox.BackColor = Color.Transparent;
             headerBox.MouseDown += DBHeader_MouseDown;
@@ -180,34 +166,20 @@ namespace DarkBlueTheme
         }
 
         #region События перерисовки/масштабирования
-
-        /*При изменении размеров родительской формы меняем размер контрола
-         и положение кнопок*/
-        private void ParentForm_OnResize(object sender, EventArgs e)
+        private void DBHeader_Resize(object sender, EventArgs e)
         {
-            this.Width = Parent.Width-2;
             exitButton.Location = new Point(this.Width - exitButton.Width, 0);
             resizeButton.Location = new Point(this.Width - 2 * resizeButton.Width, 0);
             hideButton.Location = new Point(this.Width - 3 * hideButton.Width, 0);
-            parentForm.Invalidate();
-
         }
 
-        /*Добавляем рамку*/
-        private void parentForm_OnPaint(object sender, PaintEventArgs e)
+        /*Назначение размеров и положения заголовка*/
+        public void SetBounds()
         {
-            if (this.parentForm.WindowState == FormWindowState.Normal)
-                DrawBorders();
-        }
+            Size = new Size(parentForm.Width - 2,
+                GetSystemMetrics(Indexes.SM_CYCAPTION) + 7);
+            Location = new Point(1, 1);
 
-        /*Рисование рамки на родительской форме*/
-        private void DrawBorders()
-        {
-            /*Добавляем рамку*/
-            Graphics clientRect = parentForm.CreateGraphics();
-            Pen borderPen = new Pen(Palette.LightBorderColor);
-            clientRect.DrawRectangle(borderPen, 0, 0, parentForm.Width - 1, parentForm.Height - 1);
-            clientRect.Dispose();
         }
 
         private void DBHeader_Paint(object sender, PaintEventArgs e)

@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-using System.Timers;
 using Open.Nat;
 using System.Threading;
 
@@ -24,22 +23,18 @@ namespace WinFormTry_1
 
         /*Имя компьютера*/
         public String device;
-        /*ip-адрес компьютера*/
-        public IPAddress hostAdress;
-        /*Порт, по которому будет проводиться соединение*/
-        public int port=-1;
-        /*Код доступа*/
-        public String securityCode;
-        /*Android-клиент, подключающийся к компьютеру*/
-        RemoteDevice remoteClient;
-
-        public IPEndPoint client;
 
         /*Действия сервера и клиента*/
         ScreenActions screenActions = Global.screenActions;
 
+        IPAddress clientIP;
+        /*Сокет для чтения данных*/
+        private Socket listener;
 
-        private Socket remoteListener;
+        /*Сокет для отправки данных*/
+        private Socket sender;
+
+        RemoteDevice remoteClient;
 
         #endregion
 
@@ -78,26 +73,28 @@ namespace WinFormTry_1
         }
 
         /*Сетевая настройка подключения*/
-        public IPEndPoint host
+
+        /*Получение данных*/
+        public IPEndPoint hostPoint
         {
             get
             {
-                if (this.hostAdress != null & this.port != -1)
-                    return new IPEndPoint(this.hostAdress, this.port);
-                return null;
+                return new IPEndPoint(IPAddress.Parse("0.0.0.0"), Global.receivePort);
             }
             set { }
         }
 
-        /*Внешний ip роутера*/
-        public IPAddress externalIP
+        public IPEndPoint clientPoint
         {
             get
             {
-                string ip = new WebClient().DownloadString("http://icanhazip.com");
-                if (ip.Contains('\n'))
-                    return IPAddress.Parse(ip.Remove(ip.Length - 1, 1));
-                return IPAddress.Parse(ip);
+                if(clientIP!=null)
+                    return new IPEndPoint(clientIP, Global.sendPort);
+                return null;
+            }
+            set
+            {
+                clientIP = value.Address;
             }
         }
 
@@ -110,33 +107,17 @@ namespace WinFormTry_1
             set
             {
                 connected = value;
-                if(ConnectionStateChanged!=null)
-                {
-                    EventArgs ev = new EventArgs();
-                    ConnectionStateChanged(this, ev);
-                }
             }
         }
         #endregion
 
-        #region События для переменных
-        /*Событие для отслеживания состояния подключения*/
-        public delegate void ConnectionStateChangedHandler(object sender, EventArgs eventArgs);
-        public event ConnectionStateChangedHandler ConnectionStateChanged;
-        #endregion
-
-
-
         /*Конструктор класса*/
         public RemoteConnection()
         {
-            this.hostAdress = IPAddress.Parse(Global.hostIP);
-            this.port = Global.screenPort;
             this.device = Environment.MachineName;
-            this.securityCode = Global.securityCode;
-
-            /*Инициализируем сокет*/
-            remoteListener = new Socket(host.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            /*Инициализируем сокеты*/
+            //listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             Task.Run(RunAsync);
         }
 
@@ -149,8 +130,10 @@ namespace WinFormTry_1
                 var cts = new CancellationTokenSource(5000);
                 // using SSDP protocol, it discovers NAT device.
                 var device = await nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-                // create a new mapping in the router [external_ip:1702 -> host_machine:1602]
-                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, port, port, "Server"));
+                // Пробрасываем порт для получения данных
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.receivePort, Global.receivePort, "ToServer port"));
+                // Пробрасываем порт для отправки данных
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.sendPort, Global.sendPort, "ToClient port"));
             }
             catch (Exception ex)
             {
@@ -159,8 +142,8 @@ namespace WinFormTry_1
             }
             try
             {        
-                /*Привязываем сокет к серверному адресу*/
-                remoteListener.Bind(host);
+                /*Привязываем сокеты к серверному адресу*/
+                listener.Bind(hostPoint);
                 /*Ждем инициализации удаленного устройства*/
                 await ConnectAsync();                
                 /*Запускаем задачу чтения данных*/
@@ -191,13 +174,13 @@ namespace WinFormTry_1
                     /*Ждем сообщения INIT от клиента*/
                     case AccessLevel.None:
                         /*Считываем начальные данные об удаленном устройстве*/
-                        EndPoint remoteIp = new IPEndPoint(IPAddress.Any, port);
+                        EndPoint remoteIp = new IPEndPoint(IPAddress.Any, Global.receivePort);
                         /*Получаем сообщение*/
                         StringBuilder builder = new StringBuilder();
                         int bytes = 0; // количество полученных байтов
                         byte[] data = new byte[256]; // буфер для получаемых данных
                                                      /*Получаем данные и преобразуем их в DataSet*/
-                        bytes = remoteListener.ReceiveFrom(data, ref remoteIp);
+                        bytes = listener.ReceiveFrom(data, ref remoteIp);
                         builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
                         DataSet initStructure = new DataSet(builder.ToString());
                         /*Проверяем операцию
@@ -205,9 +188,9 @@ namespace WinFormTry_1
                         if (initStructure.command == DataSet.ConnectionCommands.INIT)
                         {
                             /*Получаем ip, с которого пришел сигнал*/
-                            client = remoteIp as IPEndPoint;
-                            client.Port = Global.screenPort;
-                            remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], client.Address);
+                            clientPoint = remoteIp as IPEndPoint;
+                            clientPoint.Port = Global.sendPort;
+                            remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], clientPoint.Address);
                             access = AccessLevel.SendPassword;
                         }
                         else
@@ -223,7 +206,7 @@ namespace WinFormTry_1
                             DataSet passStructure = new DataSet(DataSet.ConnectionCommands.PASSWORD);
                             Send(passStructure);
                             /*Ждем ответа*/
-                            passStructure = ReadPackage(client);
+                            passStructure = ReadPackage(hostPoint);
                             /*Проверяем операцию
                                 Как только отловили команду PASSWORD, проверяем указанный в сообщении пароль*/
                             if (passStructure.command == DataSet.ConnectionCommands.PASSWORD)
@@ -258,7 +241,7 @@ namespace WinFormTry_1
                         connectStructure.Add(this.device);
                         Send(connectStructure);
                         /*Получаем ответ от клиента*/
-                        connectStructure = ReadPackage(client);
+                        connectStructure = ReadPackage(hostPoint);
                         /*Если подключение успешно установлено, переходим к следующему шагу*/
                         if (connectStructure.command == DataSet.ConnectionCommands.CONNECT)
                             access = AccessLevel.SendData;
@@ -280,9 +263,9 @@ namespace WinFormTry_1
         {
             while (true)
             {
-                while (remoteListener.Available != 0)
+                while (listener.Available != 0)
                 {
-                    DataSet result = ReadPackage(client);
+                    DataSet result = ReadPackage(hostPoint);
                     lock (screenActions.receiveQueue)
                         screenActions.receiveQueue.Enqueue(result);
                 }
@@ -313,7 +296,7 @@ namespace WinFormTry_1
             int bytes = 0; // количество полученных байтов
             byte[] data = new byte[256]; // буфер для получаемых данных
             /*Получаем данные и преобразуем их в DataSet*/
-            bytes = remoteListener.ReceiveFrom(data, ref point);
+            bytes = listener.ReceiveFrom(data, ref point);
             builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
             return new DataSet(builder.ToString());
         }
@@ -322,7 +305,7 @@ namespace WinFormTry_1
         public void Send(DataSet package)
         {
             byte[] data = package.ToByteArray();
-            remoteListener.SendTo(data, client);
+            sender.SendTo(data, clientPoint);
         }
     }
 

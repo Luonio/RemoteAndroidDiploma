@@ -75,12 +75,6 @@
     <Compile Include="ChatForm.Designer.cs">
       <DependentUpon>ChatForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ChildFormsTemplate.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ChildFormsTemplate.Designer.cs">
-      <DependentUpon>ChildFormsTemplate.cs</DependentUpon>
-    </Compile>
     <Compile Include="DataSet.cs" />
     <Compile Include="DialogForm.cs">
       <SubType>Form</SubType>
@@ -102,12 +96,6 @@
       <DependentUpon>MenuItemControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="PropertiesForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="PropertiesForm.Designer.cs">
-      <DependentUpon>PropertiesForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AltActionsControl.cs">
       <SubType>UserControl</SubType>
@@ -129,9 +117,6 @@
     <EmbeddedResource Include="ChatForm.resx">
       <DependentUpon>ChatForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ChildFormsTemplate.resx">
-      <DependentUpon>ChildFormsTemplate.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="DialogForm.resx">
       <DependentUpon>DialogForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -140,9 +125,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MenuItemControl.resx">
       <DependentUpon>MenuItemControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PropertiesForm.resx">
-      <DependentUpon>PropertiesForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -271,6 +253,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\edit_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\edit_field_icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

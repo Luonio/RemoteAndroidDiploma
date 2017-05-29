@@ -53,6 +53,15 @@
     <Compile Include="DBCopyTextBox.Designer.cs">
       <DependentUpon>DBCopyTextBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="DBForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DBForm.Designer.cs">
+      <DependentUpon>DBForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DBGroupBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DBHeader.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -70,6 +79,9 @@
     </Compile>
     <Compile Include="DBLabel.Designer.cs">
       <DependentUpon>DBLabel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DBPanel.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="DBRadioButton.cs">
       <SubType>Component</SubType>
@@ -89,6 +101,12 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ResizeControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ResizeControl.Designer.cs">
+      <DependentUpon>ResizeControl.cs</DependentUpon>
     </Compile>
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>

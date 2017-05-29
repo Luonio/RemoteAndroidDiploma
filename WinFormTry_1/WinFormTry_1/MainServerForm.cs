@@ -229,7 +229,7 @@ namespace WinFormTry_1
 
         private void Chat_MouseClick(object sender, EventArgs e)
         {
-            if (chat.shown)
+            if (chat.IsShown)
                 chat.Hide();
             else
                 chat.Show();
@@ -276,7 +276,7 @@ namespace WinFormTry_1
         /*Открытие окна "настройки"*/
         private void Properties_MouseClick(object sender, MouseEventArgs e)
         {
-            if (properties.shown)
+            if (properties.IsShown)
                 properties.Hide();
             else
                 properties.Show();

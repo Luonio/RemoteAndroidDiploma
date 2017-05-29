@@ -1,6 +1,6 @@
-﻿namespace WinFormTry_1
+﻿namespace DarkBlueTheme
 {
-    partial class ChildFormsTemplate
+    partial class DBForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,18 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            // 
-            // ChildFormsTemplate
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
-            this.Name = "ChildFormsTemplate";
-            this.Text = "ChildFormsTemplate";
-            this.Load += new System.EventHandler(this.ChildFormsTemplate_Load);
-            this.ResumeLayout(false);
-
+            this.Text = "DBForm";
         }
 
         #endregion

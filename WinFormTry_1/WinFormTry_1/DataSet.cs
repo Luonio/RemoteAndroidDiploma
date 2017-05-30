@@ -12,14 +12,15 @@ namespace WinFormTry_1
         public enum ConnectionCommands
         {
             NONE = 0x00,
-            INIT = 0x01,
-            PASSWORD = 0x02,
-            CONNECT = 0x03,
-            DECLINE = 0x04,
-            EXIT = 0x05,
-            ERROR = 0x06,
-            SCREEN = 0x07,
-            SCREENINFO = 0x08
+            HELLO = 0x01,
+            INIT = 0x02,
+            PASSWORD = 0x03,
+            CONNECT = 0x04,
+            DECLINE = 0x05,
+            EXIT = 0x06,
+            ERROR = 0x07,
+            SCREEN = 0x08,
+            SCREENINFO = 0x09
         }
 
         /*Команда*/
@@ -93,24 +94,26 @@ namespace WinFormTry_1
         {
             switch (str)
             {
+                case "0x01":
+                    return ConnectionCommands.HELLO;
                 /*0x01:remoteUsername,remoteDevice
                  var0 = username
                  var1 = device*/
-                case "0x01":
-                    return ConnectionCommands.INIT;
                 case "0x02":
-                    return ConnectionCommands.PASSWORD;
+                    return ConnectionCommands.INIT;
                 case "0x03":
-                    return ConnectionCommands.CONNECT;
+                    return ConnectionCommands.PASSWORD;
                 case "0x04":
-                    return ConnectionCommands.DECLINE;
+                    return ConnectionCommands.CONNECT;
                 case "0x05":
-                    return ConnectionCommands.EXIT;
+                    return ConnectionCommands.DECLINE;
                 case "0x06":
-                    return ConnectionCommands.ERROR;
+                    return ConnectionCommands.EXIT;
                 case "0x07":
-                    return ConnectionCommands.SCREEN;
+                    return ConnectionCommands.ERROR;
                 case "0x08":
+                    return ConnectionCommands.SCREEN;
+                case "0x09":
                     return ConnectionCommands.SCREENINFO;
                 default:
                     return ConnectionCommands.NONE;
@@ -122,22 +125,24 @@ namespace WinFormTry_1
         {
             switch (command)
             {
-                case ConnectionCommands.INIT:
+                case ConnectionCommands.HELLO:
                     return "0x01\\";
-                case ConnectionCommands.PASSWORD:
+                case ConnectionCommands.INIT:
                     return "0x02\\";
-                case ConnectionCommands.CONNECT:
+                case ConnectionCommands.PASSWORD:
                     return "0x03\\";
-                case ConnectionCommands.DECLINE:
+                case ConnectionCommands.CONNECT:
                     return "0x04\\";
-                case ConnectionCommands.EXIT:
+                case ConnectionCommands.DECLINE:
                     return "0x05\\";
-                case ConnectionCommands.ERROR:
+                case ConnectionCommands.EXIT:
                     return "0x06\\";
-                case ConnectionCommands.SCREEN:
+                case ConnectionCommands.ERROR:
                     return "0x07\\";
-                case ConnectionCommands.SCREENINFO:
+                case ConnectionCommands.SCREEN:
                     return "0x08\\";
+                case ConnectionCommands.SCREENINFO:
+                    return "0x09\\";
                 default:
                     return "0x00\\";
             }

@@ -116,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         }
         /*Если введенный ip корректен*/
         try {
-            global.screenActions = new ScreenActions();
             InetAddress adress = InetAddress.getByName(ip);
             /*Получаем строки имени пользователя и кода безопасности*/
             String username = connectionFragment.nameView.getText().toString();

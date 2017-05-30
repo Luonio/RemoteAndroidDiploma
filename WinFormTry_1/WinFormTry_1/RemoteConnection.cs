@@ -116,8 +116,8 @@ namespace WinFormTry_1
         {
             this.device = Environment.MachineName;
             /*Инициализируем сокеты*/
-            //listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            //sender = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            listener = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            sender = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             Task.Run(RunAsync);
         }
 
@@ -191,7 +191,12 @@ namespace WinFormTry_1
                             clientPoint = remoteIp as IPEndPoint;
                             clientPoint.Port = Global.sendPort;
                             remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], clientPoint.Address);
-                            access = AccessLevel.SendPassword;
+                            /*Сразу после команды INIT на все рабочие порты (кроме основного) должна прийти HELLO-команда
+                             для обеспечения связи по этим портам. Читаем ее*/
+                            IPEndPoint tmpPoint = new IPEndPoint(hostPoint.Address, Global.sendPort);
+                            /*initStructure = ReadPackage(tmpPoint);
+                            if(initStructure.command==DataSet.ConnectionCommands.HELLO)*/
+                                access = AccessLevel.SendPassword; 
                         }
                         else
                             access = AccessLevel.None;
@@ -204,7 +209,7 @@ namespace WinFormTry_1
                         {
                             /*Устройства в сохраненных нет. Запрашиваем пароль*/
                             DataSet passStructure = new DataSet(DataSet.ConnectionCommands.PASSWORD);
-                            Send(passStructure);
+                                Send(passStructure);
                             /*Ждем ответа*/
                             passStructure = ReadPackage(hostPoint);
                             /*Проверяем операцию

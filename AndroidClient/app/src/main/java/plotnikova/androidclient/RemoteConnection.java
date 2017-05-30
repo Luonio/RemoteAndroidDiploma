@@ -99,13 +99,14 @@ public class RemoteConnection {
             @Override
             public void run(){
                 try{
-                    sendSocket = new DatagramSocket(host.port);
+                    sendSocket = new DatagramSocket();
                     receiveSocket = new DatagramSocket(receivePort);
                 }
                 catch (SocketException e) {
                     /*TODO: заполнить обработку ошибки сокета*/
                 }
                 if(Connect()){
+                    global.screenActions = new ScreenActions();
                     global.mainHandler.sendEmptyMessage(1);
                     global.screenActions.startScreenActions();
                     /*Читаем данные*/
@@ -151,11 +152,24 @@ public class RemoteConnection {
         }
     }
 
+    /*Отправка набора даанных на указанный адрес через указанный порт*/
+    public void send(DataSet pack, InetAddress ip, int port){
+        try {
+            byte[] sendData = pack.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(
+                    sendData, sendData.length, ip, port);
+            sendSocket.send(sendPacket);
+        }
+        catch(IOException ex) {
+            /*TODO: добавить обработчик*/
+        }
+    }
+
     /*Получение набора данных с удаленного адреса*/
     public DataSet receive()    {
         try {
             byte[] receiveData = new byte[8192];
-            DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length, host.ip, receivePort);
+            DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
             receiveSocket.receive(packet);
             String msg = new String(packet.getData(), packet.getOffset(), packet.getLength());
             return (new DataSet(msg));
@@ -195,6 +209,11 @@ public class RemoteConnection {
                     initPack.add(username);
                     initPack.add(device);
                     send(initPack);
+                    //Инициализация портов. Для того, чтобы роутер (если есть) знал,
+                    //с какими портами он работает. Иначе ответ на клиент не приходит
+                    /*DataSet helloMessage = new DataSet(DataSet.ConnectionCommands.HELLO);
+                    send(helloMessage,host.ip,receivePort);*/
+                    //TODO: добавить обратную пересылку сообщения
                     step++;
                     break;
                 //PASSWORD/EXIT

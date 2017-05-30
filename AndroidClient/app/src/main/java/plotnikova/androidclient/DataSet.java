@@ -10,6 +10,7 @@ public class DataSet {
 
     public enum ConnectionCommands {
         NONE,
+        HELLO,
         INIT,
         PASSWORD,
         CONNECT,
@@ -74,20 +75,22 @@ public class DataSet {
                  var0 = username
                  var1 = device*/
             case "0x01":
-                return ConnectionCommands.INIT;
+                return ConnectionCommands.HELLO;
             case "0x02":
-                return ConnectionCommands.PASSWORD;
+                return ConnectionCommands.INIT;
             case "0x03":
-                return ConnectionCommands.CONNECT;
+                return ConnectionCommands.PASSWORD;
             case "0x04":
-                return ConnectionCommands.DECLINE;
+                return ConnectionCommands.CONNECT;
             case "0x05":
-                return ConnectionCommands.EXIT;
+                return ConnectionCommands.DECLINE;
             case "0x06":
-                return ConnectionCommands.ERROR;
+                return ConnectionCommands.EXIT;
             case "0x07":
-                return ConnectionCommands.SCREEN;
+                return ConnectionCommands.ERROR;
             case "0x08":
+                return ConnectionCommands.SCREEN;
+            case "0x09":
                 return ConnectionCommands.SCREENINFO;
             default:
                 return ConnectionCommands.NONE;
@@ -99,22 +102,24 @@ public class DataSet {
     {
         switch(command)
         {
-            case INIT:
+            case HELLO:
                 return "0x01\\";
-            case PASSWORD:
+            case INIT:
                 return "0x02\\";
-            case CONNECT:
+            case PASSWORD:
                 return "0x03\\";
-            case DECLINE:
+            case CONNECT:
                 return "0x04\\";
-            case EXIT:
+            case DECLINE:
                 return "0x05\\";
-            case ERROR:
+            case EXIT:
                 return "0x06\\";
-            case SCREEN:
+            case ERROR:
                 return "0x07\\";
-            case SCREENINFO:
+            case SCREEN:
                 return "0x08\\";
+            case SCREENINFO:
+                return "0x09\\";
             default:
                 return "0x00\\";
         }

@@ -63,6 +63,8 @@ public class ScreenActions {
     private int partWidth;
     private int partHeight;
 
+    private boolean executing = true;
+
     /*false, пока не получим команду SCREENINFO или пока рисуем на вьюхе*/
     private boolean actionsAllowed;
 
@@ -76,7 +78,7 @@ public class ScreenActions {
         downloadedParts = 0;
         rows = 0;
         cols = 0;
-        service = Executors.newScheduledThreadPool(2);
+        service = Executors.newScheduledThreadPool(1);
         actionsAllowed = false;
     }
 
@@ -95,7 +97,11 @@ public class ScreenActions {
             public void run() {
                 executeCommand();
             }
-        },0,5, TimeUnit.MILLISECONDS);
+        },0,40, TimeUnit.MILLISECONDS);
+    }
+
+    public void setExecuting(boolean value){
+        this.executing = value;
     }
 
 
@@ -105,49 +111,56 @@ public class ScreenActions {
 
     /*Выполняем команды из очереди, если она не пуста*/
     private void executeCommand() {
+        DataSet packet;
         synchronized (receiveQueue) {
-            if (receiveQueue.size() != 0) {
-                DataSet packet = receiveQueue.peek();
-                switch (packet.command) {
-                    case SCREENINFO:
-                        receiveQueue.remove();
-                        partsCount = Integer.decode(packet.variables.get(0));
-                        rows = Integer.decode(packet.variables.get(1));
-                        cols = Integer.decode(packet.variables.get(2));
-                        partWidth = Integer.decode(packet.variables.get(5));
-                        partHeight = Integer.decode(packet.variables.get(6));
-                        /*Инициализируем список частей*/
-                        screen = new ArrayList<>(partsCount);
-                        for(int i=0;i<partsCount;i++){
-                            screen.add(new ScreenPart(i,partWidth,partHeight));
-                        }
-                        /*Ждем, пока не определится вьюха для прорисовки
-                        * и передаем ей ссылку на буфер с частями*/
-                        while(view==null);
-                        screenCapture = Bitmap.createBitmap(partWidth*cols,partHeight*rows, Bitmap.Config.RGB_565);
-                        captureCanvas.setBitmap(screenCapture);
-                        captureCanvas.drawColor(Color.BLACK);
-                        view.setDrawingBuffer(this.screen);
-                        //view.setDrawingQueue(this.drawingQueue);
-                        actionsAllowed = true;
-                        break;
-                    case SCREEN:
-                        if (actionsAllowed) {
-                            receiveQueue.remove();
-                            /*Получаем номер части*/
-                            int partNumber = Integer.decode(packet.variables.get(0));
-                            /*Устанавливаем изображение по указанному номеру*/
-                            synchronized (screen) {
-                                screen.get(partNumber).setImage(packet.variables.get(3),
-                                    new Point(new Integer(packet.variables.get(1)),
-                                    new Integer(packet.variables.get(2))));
+            while (receiveQueue.size() != 0) {
+            /*if (receiveQueue.size() == 0)
+                return;*/
+                packet = receiveQueue.poll();
+                try {
+                    switch (packet.command) {
+                        case SCREENINFO:
+                            partsCount = Integer.decode(packet.variables.get(0));
+                            rows = Integer.decode(packet.variables.get(1));
+                            cols = Integer.decode(packet.variables.get(2));
+                            partWidth = Integer.decode(packet.variables.get(5));
+                            partHeight = Integer.decode(packet.variables.get(6));
+                /*Инициализируем список частей*/
+                            screen = new ArrayList<>(partsCount);
+                            for (int i = 0; i < partsCount; i++) {
+                                screen.add(new ScreenPart(i, partWidth, partHeight));
                             }
-                        }
-                        break;
+                /*Ждем, пока не определится вьюха для прорисовки,
+                * затем инициализируем область для рисования*/
+                            while (view == null) ;
+                            actionsAllowed = true;
+                            screenCapture = Bitmap.createBitmap(partWidth * cols, partHeight * rows, Bitmap.Config.RGB_565);
+                            captureCanvas = new Canvas();
+                            captureCanvas.setBitmap(screenCapture);
+                            captureCanvas.drawColor(Color.BLACK);
+                            break;
+                        case SCREEN:
+                            if (actionsAllowed) {
+                    /*Получаем номер части*/
+                                int partNumber = Integer.decode(packet.variables.get(0));
+                    /*Устанавливаем изображение по указанному номеру*/
+                                synchronized (screen) {
+                                    screen.get(partNumber).setImage(packet.variables.get(3),
+                                            new Point(new Integer(packet.variables.get(1)),
+                                                    new Integer(packet.variables.get(2))));
+                                }
+                            }
+                            break;
+                    }
+                }
+                catch (Exception ex){
+                    ex.printStackTrace();
                 }
             }
         }
     }
+
+
 
     /*Проверяет, есть ли в списке частей элемент с указанным номером*/
     private boolean contains(int num){
@@ -223,10 +236,9 @@ public class ScreenActions {
                 this.location = loc;
                 byte[] byteImg = bytesFromString(value);
                 this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
-                captureCanvas.drawBitmap(this.image, this.location.x,
-                        this.location.y, paint);
-               // changed = true;
-
+                if(this.image!=null)
+                    captureCanvas.drawBitmap(this.image, this.location.x,
+                            this.location.y, paint);
             }
         }
 

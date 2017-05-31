@@ -8,6 +8,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.media.ImageReader;
+import android.util.Base64;
 import android.view.SurfaceView;
 
 import java.io.ByteArrayInputStream;
@@ -236,9 +237,15 @@ public class ScreenActions {
                 this.location = loc;
                 byte[] byteImg = bytesFromString(value);
                 this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
-                if(this.image!=null)
+                if(this.image!=null) {
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                    byte[] byteArray = byteArrayOutputStream .toByteArray();
+                    String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
                     captureCanvas.drawBitmap(this.image, this.location.x,
                             this.location.y, paint);
+                }
             }
         }
 

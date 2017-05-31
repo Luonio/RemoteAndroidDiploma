@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,93 +28,146 @@ namespace WinFormTry_1
         public ConnectionCommands command;
 
         /*Массив данных*/
-        public List<String> variables = new List<String>();
+        public List<Object> variables = new List<Object>();
 
         /*Пакет*/
-        public String package;
+        public MemoryStream package;
         #endregion
 
         #region Конструкторы
         public DataSet()
         {
             this.command = ConnectionCommands.NONE;
-            this.variables = null;
-        }
-
-        /*Получаем пакет вида КОМАНДА\данные,данные,данные...*/
-        public DataSet(String package)
-        {
-            FromString(package);
+            this.package = new MemoryStream();
         }
 
         /*Получаем пакет в виде массива байтов*/
-        public DataSet(Byte[] package)
+        public DataSet(Byte[] pack, int length)
         {
-            FromString(package.ToString());
+            this.package = new MemoryStream();
+            this.package.Write(pack, 0, length);
+            /*Устанавливаем позицию в 0 для чтения*/
+            this.package.Position = 0;
+            /*Читаем команду*/
+            byte[] cmdByte = new byte[5];
+            this.package.Read(cmdByte, 0, 5);
+            this.command = ToCommand(cmdByte);
+            /*В зависимости от полученной команды читаем значения переменных*/
+            switch (command)
+            {
+                case ConnectionCommands.INIT:
+                    FromString(Encoding.ASCII.GetString(pack, 0, length));
+                    break;
+                case ConnectionCommands.PASSWORD:
+                    int passLength = length - 5;
+                    cmdByte = new byte[passLength];
+                    this.package.Read(cmdByte, 0, passLength);
+                    Add(Encoding.ASCII.GetString(cmdByte, 0, passLength));
+                    break;
+                case ConnectionCommands.SCREEN:
+                    int numLength = 2;
+                    cmdByte = new Byte[numLength];
+                    this.package.Read(cmdByte, 0, numLength);
+                    Add(BitConverter.ToInt16(cmdByte, 0));
+                    break;
+            }
         }
 
         /*Получаем команду для инициализации пакета*/
         public DataSet(ConnectionCommands command)
         {
             this.command = command;
-            this.package = ToString(command);
+            byte[] cmd = Encoding.UTF8.GetBytes(ToString(command));
+            package = new MemoryStream();
+            package.Write(cmd, 0, cmd.Length);
         }
         #endregion
 
         #region Методы
-        /*Добавление переменной в variables*/
-        public void Add(Object data)
-        {
-            if (variables.Count() == 0)
-                package += data.ToString();
-            else
-                package += (String.Format("," + data.ToString()));
-            variables.Add(data.ToString());
 
+        #region Добавление переменной в список
+        /*В список переменных добавляется 4хбайтовое знаковое число*/
+        public void Add(int data)
+        {
+            byte[] res = BitConverter.GetBytes(data);
+            if(variables.Count!=0)
+                package.Write(new byte[] { 44 }, 0, 1);
+            package.Write(res, 0, res.Length);
+            variables.Add(data);
         }
+
+        /*В список переменных добавляется 2хбайтовое знаковое число*/
+        public void Add(short data)
+        {
+            byte[] res = BitConverter.GetBytes(data);
+            if (variables.Count != 0)
+                package.Write(new byte[] { 44 }, 0, 1);
+            package.Write(res, 0, res.Length);
+            variables.Add(data);
+        }
+
+        /*В список переменных добавляется строка*/
+        public void Add(string data)
+        {
+            byte[] res = Encoding.ASCII.GetBytes(data);
+            if (variables.Count != 0)
+                package.Write(new byte[] { 44 }, 0, 1);
+            package.Write(res, 0, res.Length);
+            variables.Add(data);
+        }
+
+        /*В список переменных добавляется массив байтов*/
+        public void Add(byte[] data)
+        {
+            if (variables.Count != 0)
+                package.Write(new byte[] { 44 }, 0, 1);
+            package.Write(data, 0, data.Length);
+            variables.Add(data);
+        }
+        #endregion
 
         /*Преобразует набор данных в массив байтов*/
         public Byte[] ToByteArray()
         {
-            return Encoding.ASCII.GetBytes(package);
+            return package.GetBuffer();
         }
 
         /*Делим строку на команду и массив данных*/
         private void FromString(String package)
         {
             String[] tmpArr = package.Split('\\');
-            this.command = ToCommand(tmpArr[0]);
             if (tmpArr[1] != "")
                 foreach (String value in tmpArr[1].Split(','))
                     variables.Add(value);
-            this.package = package;
         }
 
+
         /*Преобразует строку в команду*/
-        private ConnectionCommands ToCommand(String str)
+        private ConnectionCommands ToCommand(byte[] cmd)
         {
+            string str = Encoding.UTF8.GetString(cmd);
             switch (str)
             {
-                case "0x01":
+                case "0x01\\":
                     return ConnectionCommands.HELLO;
                 /*0x01:remoteUsername,remoteDevice
                  var0 = username
                  var1 = device*/
-                case "0x02":
+                case "0x02\\":
                     return ConnectionCommands.INIT;
-                case "0x03":
+                case "0x03\\":
                     return ConnectionCommands.PASSWORD;
-                case "0x04":
+                case "0x04\\":
                     return ConnectionCommands.CONNECT;
-                case "0x05":
+                case "0x05\\":
                     return ConnectionCommands.DECLINE;
-                case "0x06":
+                case "0x06\\":
                     return ConnectionCommands.EXIT;
-                case "0x07":
+                case "0x07\\":
                     return ConnectionCommands.ERROR;
-                case "0x08":
+                case "0x08\\":
                     return ConnectionCommands.SCREEN;
-                case "0x09":
+                case "0x09\\":
                     return ConnectionCommands.SCREENINFO;
                 default:
                     return ConnectionCommands.NONE;

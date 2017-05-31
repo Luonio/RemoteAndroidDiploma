@@ -176,13 +176,11 @@ namespace WinFormTry_1
                         /*Считываем начальные данные об удаленном устройстве*/
                         EndPoint remoteIp = new IPEndPoint(IPAddress.Any, Global.receivePort);
                         /*Получаем сообщение*/
-                        StringBuilder builder = new StringBuilder();
                         int bytes = 0; // количество полученных байтов
                         byte[] data = new byte[256]; // буфер для получаемых данных
                                                      /*Получаем данные и преобразуем их в DataSet*/
                         bytes = listener.ReceiveFrom(data, ref remoteIp);
-                        builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
-                        DataSet initStructure = new DataSet(builder.ToString());
+                        DataSet initStructure = new DataSet(data,bytes);
                         /*Проверяем операцию
                           Как только отловили команду INIT, инициализируем удаленного пользователя*/
                         if (initStructure.command == DataSet.ConnectionCommands.INIT)
@@ -190,7 +188,7 @@ namespace WinFormTry_1
                             /*Получаем ip, с которого пришел сигнал*/
                             clientPoint = remoteIp as IPEndPoint;
                             clientPoint.Port = Global.sendPort;
-                            remoteClient = new RemoteDevice(initStructure.variables[0], initStructure.variables[1], clientPoint.Address);
+                            remoteClient = new RemoteDevice((string)initStructure.variables[0], (string)initStructure.variables[1], clientPoint.Address);
                             /*Сразу после команды INIT на все рабочие порты (кроме основного) должна прийти HELLO-команда
                              для обеспечения связи по этим портам. Читаем ее*/
                             IPEndPoint tmpPoint = new IPEndPoint(hostPoint.Address, Global.sendPort);
@@ -296,14 +294,11 @@ namespace WinFormTry_1
         /*Чтение одного пакета*/
         private DataSet ReadPackage (EndPoint point)
         {
-            /*Получаем сообщение*/
-            StringBuilder builder = new StringBuilder();
             int bytes = 0; // количество полученных байтов
             byte[] data = new byte[256]; // буфер для получаемых данных
             /*Получаем данные и преобразуем их в DataSet*/
             bytes = listener.ReceiveFrom(data, ref point);
-            builder.Append(Encoding.ASCII.GetString(data, 0, bytes));
-            return new DataSet(builder.ToString());
+            return new DataSet(data, bytes);
         }
 
         /*Отправка данных*/

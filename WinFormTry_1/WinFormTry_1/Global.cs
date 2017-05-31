@@ -59,6 +59,7 @@ namespace WinFormTry_1
 
         /*Интервал между отправками данных клиенту*/
         public static int connectionInterval = 40;
+
         #endregion
 
         #region Методы расширения
@@ -68,14 +69,15 @@ namespace WinFormTry_1
             /*Если передан null или пустой массив, возвращаем null*/
             if (array == null | array.Length == 0)
                 return null;
-            StringBuilder result = new StringBuilder();
+            /*StringBuilder result = new StringBuilder();
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i] < 0x10)
                     result.Append("0");
                 result.Append(array[i].ToString("X"));
             }
-            return result.ToString();
+            return result.ToString();*/
+            return Encoding.ASCII.GetString(array, 0, array.Length);
         }
 
         /*Возвращает true, если картинки идентичны*/

@@ -31,11 +31,11 @@ namespace WinFormTry_1
         /*Список частей экрана*/
         public List<ScreenPart> screen;
         /*Общее количество частей*/
-        private int partsCount;
+        private short partsCount;
         /*Количество частей по-вертикали*/
-        private int rows;
+        private short rows;
         /*Количество частей по-горизонтали*/
-        private int cols;
+        private short cols;
         /*Размер части*/
         private Size partSize;
         #endregion
@@ -76,13 +76,13 @@ namespace WinFormTry_1
             capture.Save(ms, ImageFormat.Jpeg);
             int len = Convert.ToInt32(ms.Length);
             /*Получаем partsCount частей по 1кб*/
-            partsCount = len / 1024;
+            partsCount = Convert.ToInt16(len / 1024);
             /*Увеличиваем число частей в 2 раза, так как размер каждой части может меняться*/
             //partsCount *= 2;
             /*Получаем число, из которого можно извлечь квадратный корень*/
             partsCount = GetSquareNumber(partsCount);
             /*Получаем строки и столбцы*/
-            cols = rows = Convert.ToInt32(Math.Sqrt(partsCount));
+            cols = rows = Convert.ToInt16(Math.Sqrt(partsCount));
             /*Получаем размер частей*/
             partSize = new Size(capture.Width / cols, capture.Height / rows);
             /*Инициализируем список частей снимка экрана*/
@@ -200,7 +200,7 @@ namespace WinFormTry_1
                 switch (currentAction.command)
                 {
                     case DataSet.ConnectionCommands.SCREEN:
-                        screen.Check(Convert.ToInt32(currentAction.variables[0]));
+                        screen.Check((short)currentAction.variables[0]);
                         break;
                 }
             }
@@ -209,16 +209,16 @@ namespace WinFormTry_1
         #region Математика
         /*Возвращает число, из которого можно извлечь корень,
           ближайшее к указанному*/
-        private static int GetSquareNumber(int n)
+        private static short GetSquareNumber(int n)
         {
             double sqrt = Math.Sqrt(n);
-            int intSqrt = Convert.ToInt32(sqrt);
+            short intSqrt = Convert.ToInt16(sqrt);
             if(sqrt-intSqrt!=0)
             {
                 intSqrt += 1;
-                return intSqrt * intSqrt;
+                return Convert.ToInt16(intSqrt * intSqrt);
             }
-            return intSqrt * intSqrt;
+            return Convert.ToInt16(intSqrt * intSqrt);
         }
         #endregion
 
@@ -277,26 +277,45 @@ namespace WinFormTry_1
             }
         }
 
+        public  ImageCodecInfo codecInfo = GetEncoderInfo("image/jpeg");
+        public static  System.Drawing.Imaging.Encoder encoder = System.Drawing.Imaging.Encoder.Quality;
+        public  EncoderParameter param = new EncoderParameter(encoder, 80L);
+        public  EncoderParameters parameters = new EncoderParameters(1);
+
+        private static ImageCodecInfo GetEncoderInfo(String mimeType)
+        {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for (j = 0; j < encoders.Length; ++j)
+            {
+                if (encoders[j].MimeType == mimeType)
+                    return encoders[j];
+            }
+            return null;
+        }
 
         /*Упаковывает изображение части экрана в DataSet*/
         public DataSet ToDataSet()
         {
-                DataSet data = new DataSet(DataSet.ConnectionCommands.SCREEN);
-                data.Add(this.partNumber);
-                data.Add(this.location.X);
-                data.Add(this.location.Y);
+            DataSet data = new DataSet(DataSet.ConnectionCommands.SCREEN);
+            data.Add(this.partNumber);
+            data.Add(this.location.X);
+            data.Add(this.location.Y);
             MemoryStream ms = new MemoryStream();
             byte[] buffer;
+            parameters.Param[0] = param;
             lock (ms)
             {
                 lock (image)
                 {
                     image.Save(ms, ImageFormat.Jpeg);
+                    //image.Save(ms, codecInfo, parameters);
                 }
                 buffer = new byte[ms.Length];
                 buffer = ms.GetBuffer();
             }
-            data.Add(BitConverter.ToString(buffer));
+            data.Add(buffer);
             ms.Dispose();
 
             return data;

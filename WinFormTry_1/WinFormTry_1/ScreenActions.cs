@@ -87,7 +87,7 @@ namespace WinFormTry_1
             partSize = new Size(capture.Width / cols, capture.Height / rows);
             /*Инициализируем список частей снимка экрана*/
             screen = new List<ScreenPart>();
-            for (int i = 0; i < partsCount; i++)
+            for (short i = 0; i < partsCount; i++)
             {
                 screen.Add(new ScreenPart(i, new Point((i % cols) * partSize.Width,
                     (i / cols) * partSize.Height), partSize, capture));
@@ -137,7 +137,7 @@ namespace WinFormTry_1
             if (captureThread.ThreadState.HasFlag(ThreadState.Suspended))
             {
                 captureThread.Resume();
-                sendAllTimer.Start();
+                //sendAllTimer.Start();
             }
             /*Иначе запускаем новый поток*/
             else
@@ -148,7 +148,7 @@ namespace WinFormTry_1
         public void Stop()
         {
             captureThread.Suspend();
-            sendAllTimer.Stop();
+            //sendAllTimer.Stop();
         }
 
         /*Раз в 3с пересылаем изображение целиком*/
@@ -230,7 +230,7 @@ namespace WinFormTry_1
     {
         #region Поля
         /*Номер части*/
-        public int partNumber;
+        public short partNumber;
         /*Координаты части*/
         public Point location;
         /*Размер части*/
@@ -247,7 +247,7 @@ namespace WinFormTry_1
         #endregion
 
         #region Конструкторы
-        public ScreenPart(int num, Point loc, Size size, Bitmap screen)
+        public ScreenPart(short num, Point loc, Size size, Bitmap screen)
         {
             this.changed = false;
             this.partNumber = num;
@@ -310,7 +310,6 @@ namespace WinFormTry_1
                 lock (image)
                 {
                     image.Save(ms, ImageFormat.Jpeg);
-                    //image.Save(ms, codecInfo, parameters);
                 }
                 buffer = new byte[ms.Length];
                 buffer = ms.GetBuffer();

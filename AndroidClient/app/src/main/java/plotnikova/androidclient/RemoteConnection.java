@@ -171,8 +171,7 @@ public class RemoteConnection {
             byte[] receiveData = new byte[8192];
             DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
             receiveSocket.receive(packet);
-            String msg = new String(packet.getData(), packet.getOffset(), packet.getLength());
-            return (new DataSet(msg));
+            return (new DataSet(packet.getData(),packet.getLength()));
         }
         catch (IOException e) {
             /*TODO: добавить обработчик*/
@@ -256,8 +255,8 @@ public class RemoteConnection {
                 case 2:
                     DataSet connectPack = receive();
                     if(connectPack.command==DataSet.ConnectionCommands.CONNECT) {
-                        host.username = connectPack.variables.get(0);
-                        host.device = connectPack.variables.get(1);
+                        host.username = (String)connectPack.variables.get(0);
+                        host.device = (String)connectPack.variables.get(1);
                         connectPack = new DataSet(DataSet.ConnectionCommands.CONNECT);
                         send(connectPack);
                         step++;

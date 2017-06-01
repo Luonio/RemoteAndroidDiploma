@@ -129,7 +129,7 @@ namespace WinFormTry_1
         /*Преобразует набор данных в массив байтов*/
         public Byte[] ToByteArray()
         {
-            return package.GetBuffer();
+            return package.ToArray();
         }
 
         /*Делим строку на команду и массив данных*/

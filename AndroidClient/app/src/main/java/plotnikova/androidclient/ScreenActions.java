@@ -53,13 +53,13 @@ public class ScreenActions {
     /*Список частей экрана*/
     private ArrayList<ScreenPart> screen;
     /*Общее количество частей*/
-    private int partsCount;
+    private short partsCount;
     /*Количество загруженных частей*/
     protected int downloadedParts;
     /*Количество частей по-вертикали*/
-    private int rows;
+    private short rows;
     /*Количество частей по-горизонтали*/
-    private int cols;
+    private short cols;
     /*Размер части*/
     private int partWidth;
     private int partHeight;
@@ -121,14 +121,14 @@ public class ScreenActions {
                 try {
                     switch (packet.command) {
                         case SCREENINFO:
-                            partsCount = Integer.decode(packet.variables.get(0));
-                            rows = Integer.decode(packet.variables.get(1));
-                            cols = Integer.decode(packet.variables.get(2));
-                            partWidth = Integer.decode(packet.variables.get(5));
-                            partHeight = Integer.decode(packet.variables.get(6));
+                            partsCount = (short)packet.variables.get(0);
+                            rows = (short)packet.variables.get(1);
+                            cols = (short)packet.variables.get(2);
+                            partWidth = (int)packet.variables.get(5);
+                            partHeight = (int)packet.variables.get(6);
                 /*Инициализируем список частей*/
                             screen = new ArrayList<>(partsCount);
-                            for (int i = 0; i < partsCount; i++) {
+                            for (short i = 0; i < partsCount; i++) {
                                 screen.add(new ScreenPart(i, partWidth, partHeight));
                             }
                 /*Ждем, пока не определится вьюха для прорисовки,
@@ -143,12 +143,11 @@ public class ScreenActions {
                         case SCREEN:
                             if (actionsAllowed) {
                     /*Получаем номер части*/
-                                int partNumber = Integer.decode(packet.variables.get(0));
+                                int partNumber = (short)packet.variables.get(0);
                     /*Устанавливаем изображение по указанному номеру*/
                                 synchronized (screen) {
-                                    screen.get(partNumber).setImage(packet.variables.get(3),
-                                            new Point(new Integer(packet.variables.get(1)),
-                                                    new Integer(packet.variables.get(2))));
+                                    screen.get(partNumber).setImage((byte[])packet.variables.get(3),
+                                            new Point((int)packet.variables.get(1),(int)packet.variables.get(2)));
                                 }
                             }
                             break;
@@ -189,7 +188,7 @@ public class ScreenActions {
 
     class ScreenPart implements Comparable<ScreenPart> {
         /*Номер части*/
-        public int partNumber;
+        public short partNumber;
         /*Координаты части*/
         public Point location;
         /*Размер части*/
@@ -204,7 +203,7 @@ public class ScreenActions {
 
         /*------КОНСТРУКТОРЫ------*/
         /*Создаем объект с указанными размерами и номером*/
-        public ScreenPart(int number, int width, int height){
+        public ScreenPart(short number, int width, int height){
             this.partNumber = number;
             this.width = width;
             this.height = height;
@@ -220,29 +219,19 @@ public class ScreenActions {
                             sendQueue.offer(askPart);
                         }
                     }
-                    else {
-                        downloadedParts++;
-                        getImageTimer.cancel();
-                    }
                 }
             };
-            getImageTimer.schedule(getImageTask,0,2000);
+            getImageTimer.schedule(getImageTask,0,1000);
         }
 
         /*------МЕТОДЫ------*/
         /*Устанавливает изображение части, декодированнное из строки вида
         * "число_число_число_...._число_число"*/
-        public void setImage(String value, Point loc) {
+        public void setImage(byte[] value, Point loc) {
             synchronized (this) {
                 this.location = loc;
-                byte[] byteImg = bytesFromString(value);
-                this.image = BitmapFactory.decodeByteArray(byteImg, 0, byteImg.length);
+                this.image = BitmapFactory.decodeByteArray(value, 0, value.length);
                 if(this.image!=null) {
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-                    byte[] byteArray = byteArrayOutputStream .toByteArray();
-                    String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
                     captureCanvas.drawBitmap(this.image, this.location.x,
                             this.location.y, paint);
                 }

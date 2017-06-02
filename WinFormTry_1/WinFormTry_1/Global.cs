@@ -89,10 +89,10 @@ namespace WinFormTry_1
             anotherBmp.Save(ms, ImageFormat.Jpeg);
             byte[] bt2 = ms.GetBuffer();
             if (bt1.Length != bt2.Length)
-                return false;
+                return true;
             for (int i = 0; i < bt1.Length; i++)
                 if (bt1[i] != bt2[i])
-                    return false;
+                    return true;
             return true;
         }
 

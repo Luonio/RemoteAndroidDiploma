@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 
@@ -45,17 +46,10 @@ public class RemoteDesktopActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        /*Добавляем фрагмент с рисовалкой*/
-        android.app.FragmentTransaction trans;
-        trans = getFragmentManager().beginTransaction();
-        trans.add(R.id.screenFrame, new ScreenFragment());
-        trans.commit();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         global.remoteConnection.setParent(this);
-
     }
 
     @Override

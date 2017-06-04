@@ -56,6 +56,9 @@ namespace WinFormTry_1
         public MainServerForm()
         {
             InitializeComponent();
+            /*Подгружаем окно чата*/
+            chat = new ChatForm();
+            Global.chat = this.chat;
             /*Получаем высоту формы*/
             this.rightFormHeight = Convert.ToInt32(Screen.PrimaryScreen.WorkingArea.Height / 2);
             /*Задаем размер формы*/
@@ -149,8 +152,6 @@ namespace WinFormTry_1
 
             /*Создание иконки рядом с панелью задач*/
             notifyIcon.Icon = Properties.Resources.notify_icon;
-            /*Подгружаем окно чата*/
-            chat = new ChatForm();
         }
 
         /*Отображение формы. Скрываем окно подключения*/

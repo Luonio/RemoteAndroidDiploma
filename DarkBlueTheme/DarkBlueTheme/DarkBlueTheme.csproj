@@ -80,6 +80,12 @@
     <Compile Include="DBLabel.Designer.cs">
       <DependentUpon>DBLabel.cs</DependentUpon>
     </Compile>
+    <Compile Include="DBMessagingBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DBMessagingBox.Designer.cs">
+      <DependentUpon>DBMessagingBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="DBPanel.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -11,7 +11,10 @@
     <color name="dbViewBackground">#303040</color>
     <color name="dbPressedViewBackground">#404050</color>
     <color name="dbViewTextColor">#A1A1A1</color>
-
     <color name="black_overlay">#66000000</color>
+    <color name="incomingMessageColor">#C8DCD2</color>
+    <color name="outcomingMessageColor">#C8D2DC</color>
+    <color name="systemMessageColor">@android:color/holo_red_dark</color>
+    <color name="messageTextColor">#1E2832</color>
 
 </resources>

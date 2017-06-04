@@ -29,6 +29,7 @@ namespace DarkBlueTheme
             this.ReadOnly = true;
             this.Cursor = Cursors.Arrow;
             this.Text = text;
+            this.HideSelection = true;
             this.GotFocus += DBCopyTextBox_GotFocus;
             this.TextChanged += DBCopyTextBox_TextChanged;
         }

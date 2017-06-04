@@ -25,7 +25,7 @@ namespace WinFormTry_1
         #region Поля
         /*Цвета форм и составных контролов*/
         public static Color baseWindowColor = Color.FromArgb(0, 10, 30);
-        public static Color addWindowColor = Color.FromArgb(30, 180, 200, 220);
+        public static Color addWindowColor = Color.FromArgb(21, 33, 52);
         public static Color menuItemColor = Color.Transparent;
         public static Color formBorderColor = Color.FromArgb(180, 200, 220);
         public static Color selectedItemColor = Color.FromArgb(110, 120, 150);
@@ -35,6 +35,9 @@ namespace WinFormTry_1
         public static Color clickedItemTextColor = Color.FromArgb(0, 0, 20);
         public static Color itemTextColor = Color.FromArgb(230, 255, 255);
         public static Color textBoxColor = Color.FromArgb(200, 200, 200);
+        public static Color incomingMessageBackColor = Color.FromArgb(200, 220, 210);
+        public static Color outcomingMessageBackColor = Color.FromArgb(200, 210, 220);
+        public static Color messageForeColor = Color.FromArgb(30, 40, 50);
 
         private static String hostIP = "192.168.0.101";
         /*Внешний ip роутера*/
@@ -48,14 +51,14 @@ namespace WinFormTry_1
                 return IPAddress.Parse(ip);
             }
         }
-        public static int receivePort = 65011;
-        public static int sendPort = 65002;
-        /*public static int screenPort = 65000 ;
-        public static int communicationPort = 65001;*/
+        public static int receivePort = 65010;
+        public static int sendPort = 65003;
+        public static int communicationsPort = 65012;
         public static String username = Environment.MachineName;
         public static String securityCode;
         public static RemoteConnection connection;
         public static ScreenActions screenActions;
+        public static ChatForm chat;
 
         /*Интервал между отправками данных клиенту*/
         public static int connectionInterval = 40;
@@ -69,14 +72,6 @@ namespace WinFormTry_1
             /*Если передан null или пустой массив, возвращаем null*/
             if (array == null | array.Length == 0)
                 return null;
-            /*StringBuilder result = new StringBuilder();
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i] < 0x10)
-                    result.Append("0");
-                result.Append(array[i].ToString("X"));
-            }
-            return result.ToString();*/
             return Encoding.ASCII.GetString(array, 0, array.Length);
         }
 

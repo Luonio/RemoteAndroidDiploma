@@ -29,13 +29,14 @@ public class RemoteDesktopActivity extends AppCompatActivity
 
     final Global global = Global.getInstance();
 
+    android.app.FragmentTransaction trans;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Получаем сообщение из объекта intent
-        Intent intent = getIntent();
         setContentView(R.layout.activity_remote_desktop);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

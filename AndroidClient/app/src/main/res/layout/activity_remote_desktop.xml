@@ -12,7 +12,11 @@
         layout="@layout/app_bar_remote_desktop"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />-->
-    <include layout="@layout/content_remote_desktop" />
+    <!--<include layout="@layout/content_remote_desktop" />-->
+    <FrameLayout
+        android:id="@+id/screen_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></FrameLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"

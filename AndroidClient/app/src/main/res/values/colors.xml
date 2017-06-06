@@ -16,5 +16,6 @@
     <color name="outcomingMessageColor">#C8D2DC</color>
     <color name="systemMessageColor">@android:color/holo_red_dark</color>
     <color name="messageTextColor">#1E2832</color>
+    <color name="chatTextBoxColor">#C8C8C8</color>
 
 </resources>

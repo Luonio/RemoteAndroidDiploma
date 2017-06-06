@@ -57,6 +57,7 @@ public class RemoteConnection {
         parent = ctx;
         this.device = Build.MANUFACTURER+Build.MODEL+" ("+Build.DEVICE+")";
         this.username = this.device;
+        global.setUsername(this.username);
         try {
             host = new RemoteHost(InetAddress.getLocalHost(), 0);
         }
@@ -69,11 +70,11 @@ public class RemoteConnection {
     {
         parent = ctx;
         this.device = Build.MANUFACTURER+Build.MODEL+" ("+Build.DEVICE+")";
-        this.username = device;
+        this.username = username;
+        global.setUsername(this.username);
         /*Инициализируем сервер*/
         host = new RemoteHost(ip,Integer.parseInt(parent.getString(R.string.sendPort)));
         receivePort = Integer.parseInt(parent.getString(R.string.receivePort));
-        this.username = username;
     }
 
     public RemoteConnection (Activity ctx, InetAddress ip)
@@ -81,6 +82,7 @@ public class RemoteConnection {
         parent = ctx;
         this.device = Build.MANUFACTURER+Build.MODEL+" ("+Build.DEVICE+")";
         this.username = device;
+        global.setUsername(this.username);
         /*Инициализируем сервер*/
         host = new RemoteHost(ip, Integer.parseInt(parent.getString(R.string.sendPort)));
         receivePort = Integer.parseInt(parent.getString(R.string.receivePort));

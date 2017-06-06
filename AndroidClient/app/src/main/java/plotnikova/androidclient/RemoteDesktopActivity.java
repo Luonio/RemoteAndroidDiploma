@@ -3,6 +3,7 @@ package plotnikova.androidclient;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 
 import java.util.ArrayList;
 
@@ -30,8 +32,8 @@ public class RemoteDesktopActivity extends AppCompatActivity
     final Global global = Global.getInstance();
 
     android.app.FragmentTransaction trans;
-
-
+    ScreenFragment screen;
+    ChatFragment chat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,11 @@ public class RemoteDesktopActivity extends AppCompatActivity
         setContentView(R.layout.activity_remote_desktop);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        screen = new ScreenFragment();
+        //chat = new ChatFragment();
+        trans = getFragmentManager().beginTransaction();
+        trans.add(R.id.screen_content, screen);
+        trans.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -108,5 +115,11 @@ public class RemoteDesktopActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void chatButton_onClick(View v){
+        trans = getFragmentManager().beginTransaction();
+        trans.replace(R.id.screen_content,chat);
+        trans.commit();
     }
 }

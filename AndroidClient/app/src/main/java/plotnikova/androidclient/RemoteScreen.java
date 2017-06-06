@@ -162,17 +162,16 @@ public class RemoteScreen extends SurfaceView implements SurfaceHolder.Callback 
         public void run(){
             /*------------------------Рисуем на вьюхе------------------------*/
             /*Если еще нет доступа к канвасу, переходим к следующей итерации*/
-            if(!surfaceHolder.getSurface().isValid())
+            if (!surfaceHolder.getSurface().isValid())
                 return;
             viewCanvas = surfaceHolder.lockCanvas();
             //viewCanvas.drawBitmap(global.screenActions.getScreenCapture(),0,0,paint);
             //viewCanvas.drawBitmap(global.screenActions.getScreenCapture(),initImageRect,rectImage,paint);
-            viewCanvas.drawBitmap(global.screenActions.getScreenCapture(),initImageRect,rectImage,paint);
+            viewCanvas.drawBitmap(global.screenActions.getScreenCapture(), initImageRect, rectImage, paint);
             if (viewCanvas != null) {
-                    surfaceHolder.unlockCanvasAndPost(viewCanvas);
+                surfaceHolder.unlockCanvasAndPost(viewCanvas);
             }
-            while(!surfaceHolder.getSurface().isValid());
-
+            while (!surfaceHolder.getSurface().isValid()) ;
         }
     }
 }

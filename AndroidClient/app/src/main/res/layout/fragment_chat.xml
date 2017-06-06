@@ -4,10 +4,40 @@
     android:layout_height="match_parent"
     tools:context="plotnikova.androidclient.ChatFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:weightSum="1"
+        android:orientation="vertical">
 
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9">
+        </ListView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0pt"
+            android:layout_weight="0.1"
+            android:background="@color/chatTextBoxColor"
+            android:weightSum="1"
+            android:orientation="horizontal">
+
+            <EditText
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:background="@color/chatTextBoxColor"
+                android:layout_weight="0.85"/>
+
+            <ImageButton
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="0.15"
+                android:background="@drawable/enter_icon"
+                android:backgroundTint="@android:color/black" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 </FrameLayout>

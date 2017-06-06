@@ -92,7 +92,7 @@ namespace WinFormTry_1
             e.Cancel = true;
             if (enterBox.Text != "")
             {
-                DialogResult hideDialog = DialogForm.Show("Выход из чата", "У вас остались неотправленные сообщения.\n Продолжить?", Global.DialogTypes.close);
+                DialogResult hideDialog = DialogForm.Show("Выход из чата", "У вас остались неотправленные \nсообщения. Продолжить?", Global.DialogTypes.close);
                 if (hideDialog == DialogResult.Yes)
                 {
                     enterBox.Clear();

@@ -10,6 +10,7 @@ import android.provider.SyncStateContract;
 
 public final class Global {
 
+    private String username;
     private String password;
     private DataSet.ConnectionCommands command;
     private int toastHeight;
@@ -30,6 +31,13 @@ public final class Global {
 
     public static Global getInstance() {
         return instance;
+    }
+
+    public String getUsername(){
+        return username;
+    }
+    public void setUsername(String value){
+        this.username = value;
     }
 
     public String getPassword(){

@@ -21,7 +21,9 @@ namespace WinFormTry_1
             EXIT = 0x06,
             ERROR = 0x07,
             SCREEN = 0x08,
-            SCREENINFO = 0x09
+            SCREENINFO = 0x09, 
+            CHATMESSAGE = 0x10,
+            VOICE = 0x11
         }
 
         /*Команда*/

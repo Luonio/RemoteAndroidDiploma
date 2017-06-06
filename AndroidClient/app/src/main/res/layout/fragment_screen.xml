@@ -1,0 +1,72 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="plotnikova.androidclient.ScreenFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+
+        <plotnikova.androidclient.RemoteScreen
+            android:id="@+id/drawingSurface"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.99" />
+
+        <!-- This FrameLayout insets its children based on system windows using
+             android:fitsSystemWindows. -->
+
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
+            style="?metaButtonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_weight="0.01"
+            android:background="@android:color/black"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            tools:ignore="UselessParent">
+
+            <ImageButton
+                android:id="@+id/commandButton"
+                android:layout_width="@dimen/button_side"
+                android:layout_height="@dimen/button_side"
+                android:layout_margin="@dimen/button_margin"
+                android:layout_weight="0.25"
+                android:background="@android:drawable/ic_menu_manage" />
+
+            <ImageButton
+                android:id="@+id/chatButton"
+                android:layout_width="@dimen/button_side"
+                android:layout_height="@dimen/button_side"
+                android:layout_margin="@dimen/button_margin"
+                android:layout_weight="0.25"
+                android:adjustViewBounds="false"
+                android:background="@android:drawable/sym_action_chat"
+                android:onClick="chatButton_onClick" />
+
+            <ImageButton
+                android:id="@+id/callButton"
+                android:layout_width="@dimen/button_side"
+                android:layout_height="@dimen/button_side"
+                android:layout_margin="@dimen/button_margin"
+                android:layout_weight="0.25"
+                android:background="@android:drawable/stat_sys_phone_call" />
+
+            <ImageButton
+                android:id="@+id/disconnectButton"
+                android:layout_width="@dimen/button_side"
+                android:layout_height="@dimen/button_side"
+                android:layout_margin="@dimen/button_margin"
+                android:layout_weight="0.25"
+                android:background="@android:drawable/ic_menu_close_clear_cancel" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

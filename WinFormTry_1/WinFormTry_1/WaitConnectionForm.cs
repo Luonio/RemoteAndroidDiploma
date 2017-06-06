@@ -44,6 +44,7 @@ namespace WinFormTry_1
         private void WaitConnectionForm_Load(object sender, EventArgs e)
         {
             int marginCoef = 10;
+            this.Height = 200;
             /*Генерируем случайный пароль*/
             Global.securityCode = GetRandomCode(8);
             /*Инициализируем экранную переменную*/

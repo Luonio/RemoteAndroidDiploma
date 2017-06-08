@@ -134,8 +134,9 @@ namespace WinFormTry_1
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.receivePort, Global.receivePort, "ToServer port"));
                 // Пробрасываем порт для отправки данных
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.sendPort, Global.sendPort, "ToClient port"));
-                //Пробрасываем порт для чата
-                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.communicationsPort, Global.communicationsPort, "Chat & Call port"));
+                //Пробрасываем порты для чата и звука
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.communicationsSendPort, Global.communicationsSendPort, "Chat & Sound send port"));
+                await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.communicationsReceivePort, Global.communicationsReceivePort, "Chat & Sound receive port"));
             }
             catch (Exception ex)
             {

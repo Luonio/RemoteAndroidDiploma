@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -43,7 +44,7 @@ public class RemoteDesktopActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         screen = new ScreenFragment();
-        //chat = new ChatFragment();
+        chat = new ChatFragment();
         trans = getFragmentManager().beginTransaction();
         trans.add(R.id.screen_content, screen);
         trans.commit();
@@ -62,6 +63,7 @@ public class RemoteDesktopActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -117,9 +119,9 @@ public class RemoteDesktopActivity extends AppCompatActivity
         return true;
     }
 
-    public void chatButton_onClick(View v){
+    public void chatButton_onClick(View v) {
         trans = getFragmentManager().beginTransaction();
-        trans.replace(R.id.screen_content,chat);
+        trans.replace(R.id.screen_content, chat);
         trans.commit();
     }
 }

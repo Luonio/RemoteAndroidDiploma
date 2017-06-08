@@ -114,7 +114,10 @@ namespace WinFormTry_1
             connectionMonitor.Tick += ((o, ev) =>
             {
                 if (Global.connection.Connected)
+                {
                     server.Show();
+                    connectionMonitor.Stop();
+                }
                 else
                 {
                     server.Hide();

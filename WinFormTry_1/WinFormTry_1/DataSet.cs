@@ -23,7 +23,7 @@ namespace WinFormTry_1
             SCREEN = 0x08,
             SCREENINFO = 0x09, 
             CHATMESSAGE = 0x10,
-            VOICE = 0x11
+            SOUND = 0x11
         }
 
         /*Команда*/
@@ -152,9 +152,6 @@ namespace WinFormTry_1
             {
                 case "0x01\\":
                     return ConnectionCommands.HELLO;
-                /*0x01:remoteUsername,remoteDevice
-                 var0 = username
-                 var1 = device*/
                 case "0x02\\":
                     return ConnectionCommands.INIT;
                 case "0x03\\":
@@ -171,6 +168,10 @@ namespace WinFormTry_1
                     return ConnectionCommands.SCREEN;
                 case "0x09\\":
                     return ConnectionCommands.SCREENINFO;
+                case "0x10\\":
+                    return ConnectionCommands.CHATMESSAGE;
+                case "0x11\\":
+                    return ConnectionCommands.SOUND;
                 default:
                     return ConnectionCommands.NONE;
             }
@@ -199,6 +200,10 @@ namespace WinFormTry_1
                     return "0x08\\";
                 case ConnectionCommands.SCREENINFO:
                     return "0x09\\";
+                case ConnectionCommands.CHATMESSAGE:
+                    return "0x10\\";
+                case ConnectionCommands.SOUND:
+                    return "0x11\\";
                 default:
                     return "0x00\\";
             }

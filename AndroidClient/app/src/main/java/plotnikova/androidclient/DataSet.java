@@ -33,7 +33,9 @@ public class DataSet {
         EXIT,
         ERROR,
         SCREEN,
-        SCREENINFO
+        SCREENINFO,
+        CHATMESSAGE,
+        SOUND
     }
 
     /*Получаемая/передаваемая команда*/
@@ -191,6 +193,10 @@ public class DataSet {
                 return ConnectionCommands.SCREEN;
             case "0x09\\":
                 return ConnectionCommands.SCREENINFO;
+            case "0x10\\":
+                return ConnectionCommands.CHATMESSAGE;
+            case "0x11\\":
+                return ConnectionCommands.SOUND;
             default:
                 return ConnectionCommands.NONE;
         }
@@ -219,6 +225,10 @@ public class DataSet {
                 return "0x08\\";
             case SCREENINFO:
                 return "0x09\\";
+            case CHATMESSAGE:
+                return "0x10\\";
+            case SOUND:
+                return "0x11\\";
             default:
                 return "0x00\\";
         }

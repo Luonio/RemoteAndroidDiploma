@@ -39,7 +39,7 @@ namespace WinFormTry_1
         public static Color outcomingMessageBackColor = Color.FromArgb(200, 210, 220);
         public static Color messageForeColor = Color.FromArgb(30, 40, 50);
 
-        private static String hostIP = "192.168.0.102";
+        private static String hostIP = "192.168.43.107";
         /*Внешний ip роутера*/
         public static IPAddress externalIP
         {
@@ -53,7 +53,8 @@ namespace WinFormTry_1
         }
         public static int receivePort = 65010;
         public static int sendPort = 65003;
-        public static int communicationsPort = 65012;
+        public static int communicationsSendPort = 65012;
+        public static int communicationsReceivePort = 65013;
         public static String username = Environment.MachineName;
         public static String securityCode;
         public static RemoteConnection connection;

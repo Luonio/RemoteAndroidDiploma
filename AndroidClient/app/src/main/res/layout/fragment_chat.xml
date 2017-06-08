@@ -10,11 +10,20 @@
         android:weightSum="1"
         android:orientation="vertical">
 
-        <ListView
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0pt"
+            android:fillViewport="true"
             android:layout_weight="0.9">
-        </ListView>
+
+            <ListView
+                android:id="@+id/messageArea"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5pt">
+            </ListView>
+
+        </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -25,12 +34,14 @@
             android:orientation="horizontal">
 
             <EditText
+                android:id="@+id/enterBox"
                 android:layout_width="0pt"
                 android:layout_height="match_parent"
                 android:background="@color/chatTextBoxColor"
                 android:layout_weight="0.85"/>
 
-            <ImageButton
+            <Button
+                android:id="@+id/sendButton"
                 android:layout_width="0pt"
                 android:layout_height="match_parent"
                 android:layout_weight="0.15"

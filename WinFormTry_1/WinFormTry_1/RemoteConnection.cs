@@ -28,11 +28,14 @@ namespace WinFormTry_1
         ScreenActions screenActions = Global.screenActions;
 
         IPAddress clientIP;
-        /*Сокет для чтения данных*/
-        private Socket listener;
-
-        /*Сокет для отправки данных*/
-        private Socket sender;
+        /*Сокет для чтения данных экрана*/
+        private Socket screenListener;
+        /*Сокет для чтения данных чата и звука*/
+        private Socket mediaListener;
+        /*Сокет для отправки данных чата и звука*/
+        private Socket mediaSender;
+        /*Сокет для отправки данных экрана*/
+        private Socket screenSender;
 
         RemoteDevice remoteClient;
 
@@ -116,8 +119,10 @@ namespace WinFormTry_1
         {
             this.device = Environment.MachineName;
             /*Инициализируем сокеты*/
-            listener = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            sender = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            screenListener = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            screenSender = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            mediaListener = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            mediaSender = new Socket(hostPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             Task.Run(RunAsync);
         }
 
@@ -130,9 +135,8 @@ namespace WinFormTry_1
                 var cts = new CancellationTokenSource(5000);
                 // using SSDP protocol, it discovers NAT device.
                 var device = await nat.DiscoverDeviceAsync(PortMapper.Upnp, cts);
-                // Пробрасываем порт для получения данных
+                // Пробрасываем порты для экрана
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.receivePort, Global.receivePort, "ToServer port"));
-                // Пробрасываем порт для отправки данных
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.sendPort, Global.sendPort, "ToClient port"));
                 //Пробрасываем порты для чата и звука
                 await device.CreatePortMapAsync(new Mapping(Protocol.Udp, Global.communicationsSendPort, Global.communicationsSendPort, "Chat & Sound send port"));
@@ -146,7 +150,8 @@ namespace WinFormTry_1
             try
             {        
                 /*Привязываем сокеты к серверному адресу*/
-                listener.Bind(hostPoint);
+                screenListener.Bind(hostPoint);
+                mediaListener.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), Global.communicationsReceivePort));
                 /*Ждем инициализации удаленного устройства*/
                 await ConnectAsync();                
                 /*Запускаем задачу чтения данных*/
@@ -182,7 +187,7 @@ namespace WinFormTry_1
                         int bytes = 0; // количество полученных байтов
                         byte[] data = new byte[256]; // буфер для получаемых данных
                                                      /*Получаем данные и преобразуем их в DataSet*/
-                        bytes = listener.ReceiveFrom(data, ref remoteIp);
+                        bytes = screenListener.ReceiveFrom(data, ref remoteIp);
                         DataSet initStructure = new DataSet(data,bytes);
                         /*Проверяем операцию
                           Как только отловили команду INIT, инициализируем удаленного пользователя*/
@@ -194,10 +199,10 @@ namespace WinFormTry_1
                             remoteClient = new RemoteDevice((string)initStructure.variables[0], (string)initStructure.variables[1], clientPoint.Address);
                             /*Сразу после команды INIT на все рабочие порты (кроме основного) должна прийти HELLO-команда
                              для обеспечения связи по этим портам. Читаем ее*/
-                            IPEndPoint tmpPoint = new IPEndPoint(hostPoint.Address, Global.sendPort);
+                            //IPEndPoint tmpPoint = new IPEndPoint(hostPoint.Address, Global.sendPort);
                             /*initStructure = ReadPackage(tmpPoint);
                             if(initStructure.command==DataSet.ConnectionCommands.HELLO)*/
-                                access = AccessLevel.SendPassword; 
+                            access = AccessLevel.SendPassword; 
                         }
                         else
                             access = AccessLevel.None;
@@ -269,7 +274,7 @@ namespace WinFormTry_1
         {
             while (true)
             {
-                while (listener.Available != 0)
+                while (screenListener.Available != 0)
                 {
                     DataSet result = ReadPackage(hostPoint);
                     lock (screenActions.receiveQueue)
@@ -300,7 +305,7 @@ namespace WinFormTry_1
             int bytes = 0; // количество полученных байтов
             byte[] data = new byte[256]; // буфер для получаемых данных
             /*Получаем данные и преобразуем их в DataSet*/
-            bytes = listener.ReceiveFrom(data, ref point);
+            bytes = screenListener.ReceiveFrom(data, ref point);
             return new DataSet(data, bytes);
         }
 
@@ -308,7 +313,7 @@ namespace WinFormTry_1
         public void Send(DataSet package)
         {
             byte[] data = package.ToByteArray();
-            sender.SendTo(data, clientPoint);
+            screenSender.SendTo(data, clientPoint);
         }
     }
 

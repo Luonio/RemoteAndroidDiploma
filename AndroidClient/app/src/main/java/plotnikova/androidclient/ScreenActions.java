@@ -216,6 +216,7 @@ public class ScreenActions {
                         DataSet askPart = new DataSet(DataSet.ConnectionCommands.SCREEN);
                         askPart.add(partNumber);
                         synchronized (sendQueue) {
+                            if(!sendQueue.contains(askPart))
                             sendQueue.offer(askPart);
                         }
                     }
@@ -246,16 +247,6 @@ public class ScreenActions {
             return changed;
         }
 
-        /*Получаем массив байтов из строки*/
-        private byte[] bytesFromString(String str){
-            ByteArrayOutputStream bt = new ByteArrayOutputStream();
-            String[] strArray = str.split("-");
-            for(int i=0;i<strArray.length;i++){
-                bt.write(getByte(strArray[i]));
-            }
-            return bt.toByteArray();
-        }
-
         /*Получаем байт из строки "ХХ"*/
         private byte getByte(String str)
         {
@@ -263,7 +254,6 @@ public class ScreenActions {
             return (byte)result;
 
         }
-
         @Override
         public int compareTo(ScreenPart anotherPart){
             if(this.partNumber<anotherPart.partNumber)

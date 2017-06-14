@@ -49,6 +49,8 @@ namespace WinFormTry_1
             Global.securityCode = GetRandomCode(8);
             /*Инициализируем экранную переменную*/
             Global.screenActions = new ScreenActions();
+            /*Инициализируем медиа-переменную*/
+            Global.mediaData = new MediaData();
             #region Контролы
             /*Label'ы*/
             DBLabel nameLabel = new DBLabel("Имя пользователя:");

@@ -24,8 +24,12 @@ namespace WinFormTry_1
         /*Имя компьютера*/
         public String device;
 
-        /*Действия сервера и клиента*/
+        /*Все действия, связанные с экраном*/
         ScreenActions screenActions = Global.screenActions;
+
+        /*Чат, файлы и звук*/
+        MediaData mediaData = Global.mediaData;
+
 
         IPAddress clientIP;
         /*Сокет для чтения данных экрана*/
@@ -33,7 +37,7 @@ namespace WinFormTry_1
         /*Сокет для чтения данных чата и звука*/
         private Socket mediaListener;
         /*Сокет для отправки данных чата и звука*/
-        private Socket mediaSender;
+        public Socket mediaSender;
         /*Сокет для отправки данных экрана*/
         private Socket screenSender;
 
@@ -101,6 +105,20 @@ namespace WinFormTry_1
             }
         }
 
+        public IPEndPoint mediaClient
+        {
+            get
+            {
+                if (clientIP != null)
+                    return new IPEndPoint(clientIP, Global.communicationsSendPort);
+                return null;
+            }
+            set
+            {
+                clientIP = value.Address;
+            }
+        }
+
         public bool Connected
         {
             get
@@ -154,15 +172,19 @@ namespace WinFormTry_1
                 mediaListener.Bind(new IPEndPoint(IPAddress.Parse("0.0.0.0"), Global.communicationsReceivePort));
                 /*Ждем инициализации удаленного устройства*/
                 await ConnectAsync();                
-                /*Запускаем задачу чтения данных*/
-                Task readCommands = new Task(Read);
-                readCommands.Start();
+                /*Запускаем задачи чтения данных*/
+                Task readScreenCommands = new Task(ReadScreen);
+                readScreenCommands.Start();
+                Task readMediaCommands = new Task(ReadMedia);
+                readMediaCommands.Start();
                 /*Запускаем задачу отправки данных*/
-                Task writeCommands = new Task(Write);
-                writeCommands.Start();
+                Task writeScreenCommands = new Task(WriteScreen);
+                writeScreenCommands.Start();
+                Task writeMediaCommands = new Task(WriteMedia);
+                writeMediaCommands.Start();
                 screenActions.Start();
                 /*Ожидаем завершения задач*/
-                Task.WaitAll(readCommands, writeCommands);
+                Task.WaitAll(readScreenCommands, writeScreenCommands, readMediaCommands, writeMediaCommands);
             }
             catch (Exception ex)
             {
@@ -172,7 +194,7 @@ namespace WinFormTry_1
         }
 
         /*Выполняет все этапы подключения клиента к серверу*/
-        private async Task ConnectAsync ()
+        private async Task ConnectAsync () 
         {
             while (true)
             {
@@ -215,7 +237,7 @@ namespace WinFormTry_1
                         {
                             /*Устройства в сохраненных нет. Запрашиваем пароль*/
                             DataSet passStructure = new DataSet(DataSet.ConnectionCommands.PASSWORD);
-                                Send(passStructure);
+                                Send(passStructure, clientPoint, screenSender);
                             /*Ждем ответа*/
                             passStructure = ReadPackage(hostPoint);
                             /*Проверяем операцию
@@ -229,7 +251,7 @@ namespace WinFormTry_1
                                     /*Пришел неверный пароль. Отправляем сообщение*/
                                     passStructure = new DataSet(DataSet.ConnectionCommands.EXIT);
                                     passStructure.Add("Неверный пароль");
-                                    Send(passStructure);
+                                    Send(passStructure, clientPoint, screenSender);
                                     access = AccessLevel.None;
                                 }
                             }
@@ -250,7 +272,7 @@ namespace WinFormTry_1
                         DataSet connectStructure = new DataSet(DataSet.ConnectionCommands.CONNECT);
                         connectStructure.Add(this.username);
                         connectStructure.Add(this.device);
-                        Send(connectStructure);
+                        Send(connectStructure, clientPoint, screenSender);
                         /*Получаем ответ от клиента*/
                         connectStructure = ReadPackage(hostPoint);
                         /*Если подключение успешно установлено, переходим к следующему шагу*/
@@ -261,8 +283,24 @@ namespace WinFormTry_1
                             access = AccessLevel.None;
                         break;
                     #endregion
-                    /*Если получили доступ к передаче данных, выходим из метода инициализации*/
+                    /*Если получили доступ к передаче данных,
+                     * инициализируеммедиа-порты и выходим из метода инициализации*/
                     case AccessLevel.SendData:
+                        EndPoint mediaIp = new IPEndPoint(IPAddress.Any, Global.communicationsReceivePort);
+                        /*Получаем сообщение*/
+                        int buff = 0; // количество полученных байтов
+                        byte[] receiveData = new byte[256]; // буфер для получаемых данных
+                                                     /*Получаем данные и преобразуем их в DataSet*/
+                        buff = mediaListener.ReceiveFrom(receiveData, ref mediaIp);
+                        DataSet chatStructure = new DataSet(receiveData, buff);
+                        if(chatStructure.command == DataSet.ConnectionCommands.INIT)
+                        {
+                            mediaClient = mediaIp as IPEndPoint;
+                            mediaClient.Port = Global.communicationsSendPort;
+                            chatStructure = new DataSet(DataSet.ConnectionCommands.INIT);
+                            Send(chatStructure, mediaClient, mediaSender);
+                        }
+
                         Connected = true;
                         return;
                 }
@@ -270,7 +308,7 @@ namespace WinFormTry_1
         }
 
         /*Читает данные, получаемые от клиента в цикле и заносит их в очередь*/
-        private void Read()
+        private void ReadScreen()
         {
             while (true)
             {
@@ -284,7 +322,21 @@ namespace WinFormTry_1
             }
         }
 
-        private void Write()
+        private void ReadMedia()
+        {
+            while(true)
+            {
+                while(mediaListener.Available!=0)
+                {
+                    DataSet result = ReadPackage(new IPEndPoint(hostPoint.Address, Global.communicationsReceivePort));
+                    mediaData.PutToReceived(result);
+                }
+                Thread.Sleep(40);
+            }
+        }
+
+        /*Передает клиенту данные из очереди*/
+        private void WriteScreen()
         {
             while(true)
             {
@@ -292,9 +344,19 @@ namespace WinFormTry_1
                 while (screenActions.sendQueue.Count != 0)
                 {
                     lock (screenActions.sendQueue)
-                        Send(screenActions.sendQueue.Dequeue());
+                        Send(screenActions.sendQueue.Dequeue(), clientPoint, screenSender);
                     Thread.Sleep(2);
                 }
+                Thread.Sleep(40);
+            }
+        }
+
+        private void WriteMedia()
+        {
+            while(true)
+            {
+                while (mediaData.Available)
+                    Send(mediaData.Get(), mediaClient, mediaSender);
                 Thread.Sleep(40);
             }
         }
@@ -310,10 +372,10 @@ namespace WinFormTry_1
         }
 
         /*Отправка данных*/
-        public void Send(DataSet package)
+        public void Send(DataSet package, IPEndPoint point, Socket sender)
         {
             byte[] data = package.ToByteArray();
-            screenSender.SendTo(data, clientPoint);
+            sender.SendTo(data, point);
         }
     }
 

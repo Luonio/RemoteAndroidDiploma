@@ -39,7 +39,6 @@ namespace WinFormTry_1
         public static Color outcomingMessageBackColor = Color.FromArgb(200, 210, 220);
         public static Color messageForeColor = Color.FromArgb(30, 40, 50);
 
-        private static String hostIP = "192.168.43.107";
         /*Внешний ip роутера*/
         public static IPAddress externalIP
         {
@@ -59,6 +58,7 @@ namespace WinFormTry_1
         public static String securityCode;
         public static RemoteConnection connection;
         public static ScreenActions screenActions;
+        public static MediaData mediaData;
         public static ChatForm chat;
 
         /*Интервал между отправками данных клиенту*/

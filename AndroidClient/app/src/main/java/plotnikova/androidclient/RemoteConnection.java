@@ -37,10 +37,15 @@ public class RemoteConnection {
     /*Информация о сервере*/
     public RemoteHost host;
     /*Сокет, по которому будем вести соединение*/
-    DatagramSocket sendSocket;
-    DatagramSocket receiveSocket;
+    DatagramSocket sendScreenSocket;
+    DatagramSocket receiveScreenSocket;
+    DatagramSocket sendMediaSocket;
+    DatagramSocket receiveMediaSocket;
 
-    int receivePort = 0;
+    int receiveScreenPort = 0;
+    int receiveMediaPort = 0;
+    int sendScreenPort = 0;
+    int sendMediaPort = 0;
 
     ScheduledExecutorService service;
 
@@ -74,7 +79,10 @@ public class RemoteConnection {
         global.setUsername(this.username);
         /*Инициализируем сервер*/
         host = new RemoteHost(ip,Integer.parseInt(parent.getString(R.string.sendPort)));
-        receivePort = Integer.parseInt(parent.getString(R.string.receivePort));
+        receiveScreenPort = Integer.parseInt(parent.getString(R.string.receivePort));
+        receiveMediaPort = Integer.parseInt((parent.getString(R.string.mediaReceivePort)));
+        sendScreenPort = Integer.parseInt(parent.getString(R.string.sendPort));
+        sendMediaPort = Integer.parseInt(parent.getString(R.string.mediaSendPort));
     }
 
     public RemoteConnection (Activity ctx, InetAddress ip)
@@ -85,7 +93,10 @@ public class RemoteConnection {
         global.setUsername(this.username);
         /*Инициализируем сервер*/
         host = new RemoteHost(ip, Integer.parseInt(parent.getString(R.string.sendPort)));
-        receivePort = Integer.parseInt(parent.getString(R.string.receivePort));
+        receiveScreenPort = Integer.parseInt(parent.getString(R.string.receivePort));
+        receiveMediaPort = Integer.parseInt((parent.getString(R.string.mediaReceivePort)));
+        sendScreenPort = Integer.parseInt(parent.getString(R.string.sendPort));
+        sendMediaPort = Integer.parseInt(parent.getString(R.string.mediaSendPort));
     }
 
     /*---------МЕТОДЫ---------*/
@@ -101,8 +112,10 @@ public class RemoteConnection {
             @Override
             public void run(){
                 try{
-                    sendSocket = new DatagramSocket();
-                    receiveSocket = new DatagramSocket(receivePort);
+                    sendScreenSocket = new DatagramSocket();
+                    receiveScreenSocket = new DatagramSocket(receiveScreenPort);
+                    sendMediaSocket = new DatagramSocket();
+                    receiveMediaSocket = new DatagramSocket(receiveMediaPort);
                 }
                 catch (SocketException e) {
                     /*TODO: заполнить обработку ошибки сокета*/
@@ -111,18 +124,18 @@ public class RemoteConnection {
                     global.screenActions = new ScreenActions();
                     global.mainHandler.sendEmptyMessage(1);
                     global.screenActions.startScreenActions();
-                    /*Читаем данные*/
+                    /*Читаем данные экрана*/
                     service.scheduleWithFixedDelay(new Runnable(){
                         @Override
                         public void run(){
-                            read();
+                            readScreen();
                         }
                     },0,5, TimeUnit.MILLISECONDS);
-                    /*Отправляем данные, если очередь не пуста*/
+                    /*Отправляем данные экрана, если очередь не пуста*/
                     service.scheduleWithFixedDelay(new Runnable(){
                         @Override
                         public void run(){
-                            write();
+                            writeScreen();
                         }
                     },0,40,TimeUnit.MILLISECONDS);
                 }
@@ -136,31 +149,20 @@ public class RemoteConnection {
     /*Закрываем сокеты и прекращаем работу executorService'a*/
     public void stopConnection(){
         service.shutdown();
-        sendSocket.close();
-        receiveSocket.close();
+        sendMediaSocket.close();
+        receiveMediaSocket.close();
+        sendScreenSocket.close();
+        receiveScreenSocket.close();
     }
 
-    /*Отправка набора данных на удаленный адрес*/
-    public void send(DataSet pack) {
+    /*Отправка набора данных через указанный сокет на указанный порт*/
+    public void send(DataSet pack, DatagramSocket socket, int port) {
 
         try {
             byte[] sendData = pack.getBytes();
             DatagramPacket sendPacket = new DatagramPacket(
-                    sendData, sendData.length, host.ip, host.port);
-            sendSocket.send(sendPacket);
-        }
-        catch(IOException ex) {
-            /*TODO: добавить обработчик*/
-        }
-    }
-
-    /*Отправка набора даанных на указанный адрес через указанный порт*/
-    public void send(DataSet pack, InetAddress ip, int port){
-        try {
-            byte[] sendData = pack.getBytes();
-            DatagramPacket sendPacket = new DatagramPacket(
-                    sendData, sendData.length, ip, port);
-            sendSocket.send(sendPacket);
+                    sendData, sendData.length, host.ip, port);
+            socket.send(sendPacket);
         }
         catch(IOException ex) {
             /*TODO: добавить обработчик*/
@@ -168,11 +170,11 @@ public class RemoteConnection {
     }
 
     /*Получение набора данных с удаленного адреса*/
-    public DataSet receive()    {
+    public DataSet receive(DatagramSocket socket)    {
         try {
             byte[] receiveData = new byte[8192];
             DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
-            receiveSocket.receive(packet);
+            socket.receive(packet);
             return (new DataSet(packet.getData(),packet.getLength()));
         }
         catch (IOException e) {
@@ -181,22 +183,32 @@ public class RemoteConnection {
         return null;
     }
 
-    /*Постоянное чтение данных*/
-    private void read(){
-        DataSet result = receive();
+    /*Постоянное чтение данных экрана*/
+    private void readScreen(){
+        DataSet result = receive(receiveScreenSocket);
         /*Блокируем очередь, чтобы не возникало ошибок при ее заполнении*/
         synchronized (global.screenActions.receiveQueue) {
             global.screenActions.receiveQueue.offer(result);
         }
     }
 
-    /*Постоянная запись данных*/
-    private void write(){
+    /*Чтение сообщений чата и звука*/
+    private void readMedia(){
+        DataSet result = receive(receiveMediaSocket);
+    }
+
+    /*Запись данных экрана*/
+    private void writeScreen(){
         synchronized (global.screenActions.sendQueue) {
             /*Пока очередь не пуста отправляем запросы*/
             while(global.screenActions.sendQueue.size()!=0)
-                send(global.screenActions.sendQueue.poll());
+                send(global.screenActions.sendQueue.poll(),sendScreenSocket, sendScreenPort);
         }
+    }
+
+    /*Отправка сообщений и звука*/
+    private void writeMedia(){
+
     }
 
     private Boolean Connect() {
@@ -209,17 +221,15 @@ public class RemoteConnection {
                     DataSet initPack = new DataSet(DataSet.ConnectionCommands.INIT);
                     initPack.add(username);
                     initPack.add(device);
-                    send(initPack);
+                    send(initPack, sendScreenSocket, sendScreenPort);
                     //Инициализация портов. Для того, чтобы роутер (если есть) знал,
                     //с какими портами он работает. Иначе ответ на клиент не приходит
-                    /*DataSet helloMessage = new DataSet(DataSet.ConnectionCommands.HELLO);
-                    send(helloMessage,host.ip,receivePort);*/
                     //TODO: добавить обратную пересылку сообщения
                     step++;
                     break;
                 //PASSWORD/EXIT
                 case 1:
-                    DataSet passPack = receive();
+                    DataSet passPack = receive(receiveScreenSocket);
                         /*Получили запрос пароля*/
                     if (passPack.command == DataSet.ConnectionCommands.PASSWORD) {
                             /*Открываем диалог в главном потоке*/
@@ -238,13 +248,13 @@ public class RemoteConnection {
                                     /*Отправляем серверу пароль*/
                                 passPack = new DataSet(DataSet.ConnectionCommands.PASSWORD);
                                 passPack.add(global.getPassword());
-                                send(passPack);
+                                send(passPack,sendScreenSocket,sendScreenPort);
                                 step++;
                                 break;
                             case EXIT:
                                     /*Отправляем серверу команду EXIT*/
                                 passPack = new DataSet(DataSet.ConnectionCommands.EXIT);
-                                send(passPack);
+                                send(passPack,sendScreenSocket,sendScreenPort);
                                 return false;
                         }
                     }
@@ -255,12 +265,12 @@ public class RemoteConnection {
                     break;
                     /*CONNECT/EXIT*/
                 case 2:
-                    DataSet connectPack = receive();
+                    DataSet connectPack = receive(receiveScreenSocket);
                     if(connectPack.command==DataSet.ConnectionCommands.CONNECT) {
                         host.username = (String)connectPack.variables.get(0);
                         host.device = (String)connectPack.variables.get(1);
                         connectPack = new DataSet(DataSet.ConnectionCommands.CONNECT);
-                        send(connectPack);
+                        send(connectPack,sendScreenSocket,sendScreenPort);
                         step++;
                         break;
                     }
@@ -268,9 +278,18 @@ public class RemoteConnection {
                         global.mainHandler.sendEmptyMessage(0);
                         return false;
                     }
-                    /*Если инициализация прошла успешно, возвращаем true*/
+                    /*Если инициализация основных портов прошла успешно,
+                    * инициализируем медиа-порты*/
                 case 3:
-                    return true;
+                     /*Шлем пакет инициализации*/
+                    DataSet mediaPack = new DataSet(DataSet.ConnectionCommands.INIT);
+                    send(mediaPack, sendMediaSocket, sendMediaPort);
+                    /*Получаем ответ*/
+                    mediaPack = receive(receiveMediaSocket);
+                    if(mediaPack.command == DataSet.ConnectionCommands.INIT)
+                        return true;
+                    else
+                        return false;
             }
         }
     }

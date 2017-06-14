@@ -15,10 +15,6 @@ namespace WinFormTry_1
     public partial class ChatForm : DBForm
     {
         #region Поля
-
-        public Queue<ChatMessage> sendMessageQueue;
-        public Queue<ChatMessage> receiveMessaageQueue;
-
         /*Контролы для отправки текста*/
         TextBox enterBox;
         Button enterButton;
@@ -37,8 +33,6 @@ namespace WinFormTry_1
         {
             InitializeComponent();
             this.KeyPreview = true;
-            sendMessageQueue = new Queue<ChatMessage>();
-            receiveMessaageQueue = new Queue<ChatMessage>();
         }
         #endregion
 
@@ -80,6 +74,8 @@ namespace WinFormTry_1
             if (enterBox.Text == "")
                 return;
             ChatMessage message = new ChatMessage(enterBox.Text);
+            /*Отправляем сообщение*/
+            Global.mediaData.Put(message.ToDataSet()); 
             ShowMessage(message);
             enterBox.Text = "";
         }
@@ -264,6 +260,14 @@ namespace WinFormTry_1
             this.text = text;
             if (type == MessageType.System)
                 user = "System";
+        }
+
+        /*Преобразование сообщения в DataSet*/
+        public DataSet ToDataSet()
+        {
+            DataSet mess = new DataSet(DataSet.ConnectionCommands.CHATMESSAGE);
+            mess.Add(this.text);
+            return mess;
         }
         #endregion   
     }

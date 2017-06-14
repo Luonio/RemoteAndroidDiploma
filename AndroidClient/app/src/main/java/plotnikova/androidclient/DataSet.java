@@ -84,6 +84,7 @@ public class DataSet {
                 this.add(data);
                 break;
             case CONNECT:
+            case CHATMESSAGE:
                 data = new String(pack,0,length);
                 fromString(data);
                 break;

@@ -58,6 +58,7 @@ namespace WinFormTry_1
             switch (command)
             {
                 case ConnectionCommands.INIT:
+                case ConnectionCommands.CHATMESSAGE:
                     FromString(Encoding.ASCII.GetString(pack, 0, length));
                     break;
                 case ConnectionCommands.PASSWORD:

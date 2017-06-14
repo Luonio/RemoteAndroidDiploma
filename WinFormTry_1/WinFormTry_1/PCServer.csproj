@@ -89,6 +89,7 @@
       <DependentUpon>MainServerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="MediaData.cs" />
     <Compile Include="MenuItemControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
